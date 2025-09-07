@@ -63,6 +63,12 @@ typedef struct _RNNParametersT {
     IntT typeHT;
 } RNNParametersT, *PRNNParametersT;
 
+typedef struct _PLSH_HashTableT {
+    Int32T *pointIndices;
+
+    Int32T *bucketOffsets;
+} PLSH_HashTableT, *PPLSH_HashTableT;
+
 typedef struct _RNearNeighborStructT {
     IntT dimension;     // dimension of points.
     IntT parameterK;    // parameter K of the algorithm.
@@ -117,7 +123,8 @@ typedef struct _RNearNeighborStructT {
 
     // The set of non-empty buckets (which are hashed using
     // PUHashStructureT).
-    PUHashStructureT *hashedBuckets;
+    // PUHashStructureT *hashedBuckets;
+    PPLSH_HashTableT *hashedBuckets;
 
     // ***
     // The following vectors are used only for temporary operations
