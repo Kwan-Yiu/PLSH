@@ -326,7 +326,7 @@ PRNearNeighborStructT initLSH_WithDataSet(RNNParametersT algParameters,
         secondUComp++;
         if (secondUComp == m) { firstUComp++; secondUComp = firstUComp + 1; }
     }
-    
+
     for (IntT l = 0; l < m; l++) {
         FREE(level1_partitions[l]);
         FREE(level1_offsets[l]);
@@ -611,8 +611,7 @@ Int32T getNearNeighborsFromPRNearNeighborStruct(PRNearNeighborStructT nnStruct,
                                 nNeighbors++;
                                 nnStruct->markedPointsIndeces[nMarkedPoints] =
                                     candidatePIndex;
-                                nnStruct->markedPoints[candidatePIndex] =
-                                    TRUE;  
+                                nnStruct->markedPoints[candidatePIndex] = TRUE;
                                 nMarkedPoints++;
                             }
                         } else {
@@ -623,7 +622,7 @@ Int32T getNearNeighborsFromPRNearNeighborStruct(PRNearNeighborStructT nnStruct,
                 break;
 
             case HT_STATISTICS:
-                ASSERT(FALSE);  
+                ASSERT(FALSE);
                 break;
 
             case HT_HYBRID_CHAINS:
@@ -658,8 +657,7 @@ Int32T getNearNeighborsFromPRNearNeighborStruct(PRNearNeighborStructT nnStruct,
                             // mark the point first.
                             nnStruct->markedPointsIndeces[nMarkedPoints] =
                                 candidatePIndex;
-                            nnStruct->markedPoints[candidatePIndex] =
-                                TRUE;  
+                            nnStruct->markedPoints[candidatePIndex] = TRUE;
                             nMarkedPoints++;
 
                             PPointT candidatePoint =
@@ -676,7 +674,7 @@ Int32T getNearNeighborsFromPRNearNeighborStruct(PRNearNeighborStructT nnStruct,
                                 result[nNeighbors] = candidatePoint;
                                 nNeighbors++;
                             }
-                        } 
+                        }
                     }
                 }
                 break;
