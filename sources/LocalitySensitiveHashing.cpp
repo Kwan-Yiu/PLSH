@@ -217,26 +217,29 @@ PRNearNeighborStructT initLSH(RNNParametersT algParameters,
     return nnStruct;
 }
 
-void radix_partition(Int32T *dest, const Int32T *src, Int32T n_items, 
-                     Uns32T **precomputedHashes, IntT hash_component_index, IntT n_buckets) {
-    Int32T* counts = (Int32T*)CALLOC(n_buckets, sizeof(Int32T));
+void radix_partition(Int32T *dest, const Int32T *src, Int32T n_items,
+                     Uns32T **precomputedHashes, IntT hash_component_index,
+                     IntT n_buckets) {
+    Int32T *counts = (Int32T *)CALLOC(n_buckets, sizeof(Int32T));
     for (IntT i = 0; i < n_items; i++) {
         Int32T point_idx = src[i];
-        Uns32T bucket_idx = get_precomputed_hash(point_idx, hash_component_index); 
+        Uns32T bucket_idx =
+            get_precomputed_hash(point_idx, hash_component_index);
         counts[bucket_idx]++;
     }
 
-    Int32T* offsets = (Int32T*)MALLOC((n_buckets + 1) * sizeof(Int32T));
+    Int32T *offsets = (Int32T *)MALLOC((n_buckets + 1) * sizeof(Int32T));
     offsets[0] = 0;
     for (IntT i = 0; i < n_buckets; i++) {
-        offsets[i+1] = offsets[i] + counts[i];
+        offsets[i + 1] = offsets[i] + counts[i];
     }
 
     for (IntT i = 0; i < n_items; i++) {
         Int32T point_idx = src[i];
-        Uns32T bucket_idx = get_precomputed_hash(point_idx, hash_component_index);
+        Uns32T bucket_idx =
+            get_precomputed_hash(point_idx, hash_component_index);
         dest[offsets[bucket_idx]] = point_idx;
-        offsets[bucket_idx]++; 
+        offsets[bucket_idx]++;
     }
 
     FREE(counts);
@@ -261,70 +264,85 @@ PRNearNeighborStructT initLSH_WithDataSet(RNNParametersT algParameters,
     }
 
     IntT m = nnStruct->nHFTuples;
-    Uns32T **all_u_hashes = (Uns32T**)MALLOC(m * sizeof(Uns32T*));
+    Uns32T **all_u_hashes = (Uns32T **)MALLOC(m * sizeof(Uns32T *));
     for (IntT l = 0; l < m; l++) {
-        all_u_hashes[l] = (Uns32T*)MALLOC(nPoints * sizeof(Uns32T));
+        all_u_hashes[l] = (Uns32T *)MALLOC(nPoints * sizeof(Uns32T));
         for (IntT i = 0; i < nPoints; i++) {
-            all_u_hashes[l][i] = compute_u_hash(dataSet[i], nnStruct->lshFunctions[l], nnStruct);
+            all_u_hashes[l][i] =
+                compute_u_hash(dataSet[i], nnStruct->lshFunctions[l], nnStruct);
         }
     }
 
-    Int32T* initial_indices = (Int32T*)MALLOC(nPoints * sizeof(Int32T));
-    for (Int32T i = 0; i < nPoints; i++) { initial_indices[i] = i; }
+    Int32T *initial_indices = (Int32T *)MALLOC(nPoints * sizeof(Int32T));
+    for (Int32T i = 0; i < nPoints; i++) {
+        initial_indices[i] = i;
+    }
 
     IntT k_half = nnStruct->hfTuplesLength;
-    IntT n_buckets_level1 = 1 << k_half; 
+    IntT n_buckets_level1 = 1 << k_half;
 
-    Int32T** level1_partitions = (Int32T**)MALLOC(m * sizeof(Int32T*));
-    Int32T** level1_offsets = (Int32T**)MALLOC(m * sizeof(Int32T*));
+    Int32T **level1_partitions = (Int32T **)MALLOC(m * sizeof(Int32T *));
+    Int32T **level1_offsets = (Int32T **)MALLOC(m * sizeof(Int32T *));
     for (IntT l = 0; l < m; l++) {
-        level1_partitions[l] = (Int32T*)MALLOC(nPoints * sizeof(Int32T));
-        level1_offsets[l] = (Int32T*)MALLOC((n_buckets_level1 + 1) * sizeof(Int32T));
-        plsh_radix_partition(level1_partitions[l], initial_indices, nPoints, 
-                             all_u_hashes, l, n_buckets_level1, level1_offsets[l]);
+        level1_partitions[l] = (Int32T *)MALLOC(nPoints * sizeof(Int32T));
+        level1_offsets[l] =
+            (Int32T *)MALLOC((n_buckets_level1 + 1) * sizeof(Int32T));
+        plsh_radix_partition(level1_partitions[l], initial_indices, nPoints,
+                             all_u_hashes, l, n_buckets_level1,
+                             level1_offsets[l]);
     }
     FREE(initial_indices);
 
-    nnStruct->hashedBuckets = (PPLSH_HashTableT*)MALLOC(nnStruct->parameterL * sizeof(PPLSH_HashTableT));
-    
+    nnStruct->hashedBuckets = (PPLSH_HashTableT *)MALLOC(
+        nnStruct->parameterL * sizeof(PPLSH_HashTableT));
+
     IntT firstUComp = 0;
     IntT secondUComp = 1;
     for (IntT i = 0; i < nnStruct->parameterL; i++) {
-        nnStruct->hashedBuckets[i] = (PPLSH_HashTableT)MALLOC(sizeof(PLSH_HashTableT));
+        nnStruct->hashedBuckets[i] =
+            (PPLSH_HashTableT)MALLOC(sizeof(PLSH_HashTableT));
         PPLSH_HashTableT current_ht = nnStruct->hashedBuckets[i];
-        
-        current_ht->pointIndices = (Int32T*)MALLOC(nPoints * sizeof(Int32T));
-        current_ht->nBuckets = 1 << nnStruct->parameterK; // 2^k
-        current_ht->bucketOffsets = (Int32T*)MALLOC((current_ht->nBuckets + 1) * sizeof(Int32T));
-        
-        Int32T* level1_input = level1_partitions[firstUComp];
-        Int32T* level1_offset_info = level1_offsets[firstUComp];
-        
+
+        current_ht->pointIndices = (Int32T *)MALLOC(nPoints * sizeof(Int32T));
+        current_ht->nBuckets = 1 << nnStruct->parameterK;  // 2^k
+        current_ht->bucketOffsets =
+            (Int32T *)MALLOC((current_ht->nBuckets + 1) * sizeof(Int32T));
+
+        Int32T *level1_input = level1_partitions[firstUComp];
+        Int32T *level1_offset_info = level1_offsets[firstUComp];
+
         for (IntT bucket_l1 = 0; bucket_l1 < n_buckets_level1; bucket_l1++) {
             Int32T sub_start_pos = level1_offset_info[bucket_l1];
-            Int32T sub_num_items = level1_offset_info[bucket_l1+1] - sub_start_pos;
+            Int32T sub_num_items =
+                level1_offset_info[bucket_l1 + 1] - sub_start_pos;
 
             if (sub_num_items == 0) continue;
 
-            Int32T* src_slice = level1_input + sub_start_pos;
-            Int32T* dest_slice = current_ht->pointIndices + sub_start_pos;
-            
-            // 临时偏移量数组，仅用于本次子分区
-            Int32T* sub_offsets_out = (Int32T*)MALLOC((n_buckets_level1 + 1) * sizeof(Int32T));
-            
-            plsh_radix_partition(dest_slice, src_slice, sub_num_items,
-                                 all_u_hashes, secondUComp, n_buckets_level1, sub_offsets_out);
+            Int32T *src_slice = level1_input + sub_start_pos;
+            Int32T *dest_slice = current_ht->pointIndices + sub_start_pos;
 
-            for(int bucket_l2 = 0; bucket_l2 < n_buckets_level1; bucket_l2++) {
+            // 临时偏移量数组，仅用于本次子分区
+            Int32T *sub_offsets_out =
+                (Int32T *)MALLOC((n_buckets_level1 + 1) * sizeof(Int32T));
+
+            plsh_radix_partition(dest_slice, src_slice, sub_num_items,
+                                 all_u_hashes, secondUComp, n_buckets_level1,
+                                 sub_offsets_out);
+
+            for (int bucket_l2 = 0; bucket_l2 < n_buckets_level1; bucket_l2++) {
                 int final_bucket_idx = (bucket_l1 << k_half) | bucket_l2;
-                current_ht->bucketOffsets[final_bucket_idx] = sub_start_pos + sub_offsets_out[bucket_l2];
+                current_ht->bucketOffsets[final_bucket_idx] =
+                    sub_start_pos + sub_offsets_out[bucket_l2];
             }
             FREE(sub_offsets_out);
         }
-        current_ht->bucketOffsets[current_ht->nBuckets] = nPoints; 
+        current_ht->bucketOffsets[current_ht->nBuckets] = nPoints;
 
         secondUComp++;
-        if (secondUComp == m) { firstUComp++; secondUComp = firstUComp + 1; }
+        if (secondUComp == m) {
+            firstUComp++;
+            secondUComp = firstUComp + 1;
+        }
     }
 
     for (IntT l = 0; l < m; l++) {
