@@ -2,9 +2,9 @@ name: Format Code with clang-format
 
 on:
   push:
-    branches: [ v1 ] 
+    branches: [ master ] 
   pull_request:
-    branches: [ v1 ]  
+    branches: [ master ]  
 
 jobs:
   format:
