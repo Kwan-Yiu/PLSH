@@ -286,8 +286,7 @@ PRNearNeighborStructT initLSH_WithDataSet(RNNParametersT algParameters,
         clearUHashStructure(modelHT);
     }
 
-    freeUHashStructure(modelHT,
-                       FALSE);  
+    freeUHashStructure(modelHT, FALSE);
     for (IntT l = 0; l < nnStruct->nHFTuples; l++) {
         for (IntT i = 0; i < nPoints; i++) {
             FREE(precomputedHashesOfULSHs[l][i]);
@@ -570,8 +569,7 @@ Int32T getNearNeighborsFromPRNearNeighborStruct(PRNearNeighborStructT nnStruct,
                                 nNeighbors++;
                                 nnStruct->markedPointsIndeces[nMarkedPoints] =
                                     candidatePIndex;
-                                nnStruct->markedPoints[candidatePIndex] =
-                                    TRUE;  
+                                nnStruct->markedPoints[candidatePIndex] = TRUE;
                                 nMarkedPoints++;
                             }
                         } else {
@@ -582,7 +580,7 @@ Int32T getNearNeighborsFromPRNearNeighborStruct(PRNearNeighborStructT nnStruct,
                 break;
 
             case HT_STATISTICS:
-                ASSERT(FALSE);  
+                ASSERT(FALSE);
                 break;
 
             case HT_HYBRID_CHAINS:
@@ -617,8 +615,7 @@ Int32T getNearNeighborsFromPRNearNeighborStruct(PRNearNeighborStructT nnStruct,
                             // mark the point first.
                             nnStruct->markedPointsIndeces[nMarkedPoints] =
                                 candidatePIndex;
-                            nnStruct->markedPoints[candidatePIndex] =
-                                TRUE;  
+                            nnStruct->markedPoints[candidatePIndex] = TRUE;
                             nMarkedPoints++;
 
                             PPointT candidatePoint =
@@ -635,7 +632,7 @@ Int32T getNearNeighborsFromPRNearNeighborStruct(PRNearNeighborStructT nnStruct,
                                 result[nNeighbors] = candidatePoint;
                                 nNeighbors++;
                             }
-                        } 
+                        }
                     }
                 }
                 break;
