@@ -401,7 +401,7 @@ int main(int nargs, char **args){
 
   //By xiaoq start
   printf("Total Allocated Memory is %lld\n", totalAllocatedMemory);
-  printf("Total Index Memory is %lld\n", totalAllocatedMemory-dataSetMemory)
+  printf("Total Index Memory is %lld\n", totalAllocatedMemory-dataSetMemory);
   //By xiaoq end
 
   return 0;
