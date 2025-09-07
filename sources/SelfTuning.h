@@ -15,27 +15,29 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *   Authors: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
-*/
+ */
 
 #ifndef SELFTUNING_INCLUDED
 #define SELFTUNING_INCLUDED
 
 void tuneTimeFunctions();
 
-void sortQueryPointsByRadii(IntT dimension,
-			    Int32T nQueries, 
-			    PPointT *queries, 
-			    Int32T nPoints, 
-			    PPointT *dataSet,
-			    IntT nRadii,
-			    RealT *radii,
-			    Int32T *boundaryIndeces);
+void sortQueryPointsByRadii(IntT dimension, Int32T nQueries, PPointT *queries,
+                            Int32T nPoints, PPointT *dataSet, IntT nRadii,
+                            RealT *radii, Int32T *boundaryIndeces);
 
-void determineRTCoefficients(RealT thresholdR, RealT successProbability, BooleanT useUfunctions, IntT typeHT, IntT dimension, Int32T nPoints, PPointT *realData, RealT &lshPrecomp, RealT &uhashOver, RealT &distComp);
+void determineRTCoefficients(RealT thresholdR, RealT successProbability,
+                             BooleanT useUfunctions, IntT typeHT,
+                             IntT dimension, Int32T nPoints, PPointT *realData,
+                             RealT &lshPrecomp, RealT &uhashOver,
+                             RealT &distComp);
 
-RealT estimateNCollisions(IntT nPoints, IntT dim, PPointT *dataSet, PPointT query, IntT k, IntT L, RealT R);
+RealT estimateNCollisions(IntT nPoints, IntT dim, PPointT *dataSet,
+                          PPointT query, IntT k, IntT L, RealT R);
 
-RealT estimateNDistinctCollisions(IntT nPoints, IntT dim, PPointT *dataSet, PPointT query, BooleanT useUfunctions, IntT hfTuplesLength, IntT nHFTuples, RealT R);
+RealT estimateNDistinctCollisions(IntT nPoints, IntT dim, PPointT *dataSet,
+                                  PPointT query, BooleanT useUfunctions,
+                                  IntT hfTuplesLength, IntT nHFTuples, RealT R);
 
 RealT computeFunctionP(RealT w, RealT c);
 
@@ -43,7 +45,10 @@ IntT computeLfromKP(IntT k, RealT successProbability);
 
 IntT computeMForULSH(IntT k, RealT successProbability);
 
-RNNParametersT computeOptimalParameters(RealT R, RealT successProbability, IntT nPoints, IntT dimension, PPointT *dataSet, IntT nSampleQueries, PPointT *sampleQueries, MemVarT memoryUpperBound);
-
+RNNParametersT computeOptimalParameters(RealT R, RealT successProbability,
+                                        IntT nPoints, IntT dimension,
+                                        PPointT *dataSet, IntT nSampleQueries,
+                                        PPointT *sampleQueries,
+                                        MemVarT memoryUpperBound);
 
 #endif

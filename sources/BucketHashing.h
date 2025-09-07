@@ -15,7 +15,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *   Authors: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
-*/
+ */
 
 #ifndef BUCKETHASHING_INCLUDED
 #define BUCKETHASHING_INCLUDED
@@ -25,7 +25,7 @@
 // stored in the entry, as well as link to the next entry in the
 // bucket.
 typedef struct _BucketEntryT {
-  //PPointT point;
+  // PPointT point;
   Int32T pointIndex;
   _BucketEntryT *nextEntry;
 } BucketEntryT, *PBucketEntryT;
@@ -62,8 +62,10 @@ typedef struct _PackedGBucketT {
 // 2^N_BITS_FOR_BUCKET_LENGTH - 1
 #define MAX_NONOVERFLOW_POINTS_PER_BUCKET ((1U << N_BITS_FOR_BUCKET_LENGTH) - 1)
 
-// how many fields of N_BITS_FOR_BUCKET_LENGTH bits are needed to store a 32-bit (unsigned) integer.
-#define N_FIELDS_PER_INDEX_OF_OVERFLOW ((32 + N_BITS_FOR_BUCKET_LENGTH - 1) / N_BITS_FOR_BUCKET_LENGTH)
+// how many fields of N_BITS_FOR_BUCKET_LENGTH bits are needed to store a 32-bit
+// (unsigned) integer.
+#define N_FIELDS_PER_INDEX_OF_OVERFLOW                                         \
+  ((32 + N_BITS_FOR_BUCKET_LENGTH - 1) / N_BITS_FOR_BUCKET_LENGTH)
 
 typedef union _HybridChainEntryT {
   Uns32T controlValue1;
@@ -148,7 +150,7 @@ typedef struct _UHashStructureT {
   // typeHT=HT_PACKED or HT_STATISTICS.
   IntT *chainSizes;
 
-  union _bucketPoints{
+  union _bucketPoints {
     PPointT *pointsArray;
     PointsListEntryT *pointsList;
   } bucketPoints;
@@ -170,14 +172,16 @@ typedef struct _UHashStructureT {
   PGBucketT unusedPGBuckets;
   PBucketEntryT unusedPBucketEntrys;
 
-  Uns32T prime; // the prime used for the universal hash functions.
-  IntT hashedDataLength;// the number of IntT's in an element from U (U is the set of values to hash).
+  Uns32T prime;          // the prime used for the universal hash functions.
+  IntT hashedDataLength; // the number of IntT's in an element from U (U is the
+                         // set of values to hash).
 
-  // The hash functions used for the universal hashing.  
+  // The hash functions used for the universal hashing.
 
   // The main hash function (that defines the index
   // of the slot in the table).
-  // The type of the hash function is: h_{a}(k) = ((a\cdot k)mod p)mod hashTableSize.
+  // The type of the hash function is: h_{a}(k) = ((a\cdot k)mod p)mod
+  // hashTableSize.
   Uns32T *mainHashA;
 
   // Control hash functions: used to compute/check the <controlValue>s
@@ -197,20 +201,27 @@ typedef struct _UHashStructureT {
 #define CHAIN_INIT_SIZE 0
 #define CHAIN_RESIZE_RATIO 1.5
 
-
-
-PUHashStructureT newUHashStructure(IntT typeHT, Int32T hashTableSize, IntT bucketVectorLength, BooleanT useExternalUHFs, Uns32T *(&mainHashA), Uns32T *(&controlHash1), PUHashStructureT modelHT);
+PUHashStructureT
+newUHashStructure(IntT typeHT, Int32T hashTableSize, IntT bucketVectorLength,
+                  BooleanT useExternalUHFs, Uns32T *(&mainHashA),
+                  Uns32T *(&controlHash1), PUHashStructureT modelHT);
 
 void clearUHashStructure(PUHashStructureT uhash);
 
-void optimizeUHashStructure(PUHashStructureT uhash, PointsListEntryT *(&auxPtsList));
+void optimizeUHashStructure(PUHashStructureT uhash,
+                            PointsListEntryT *(&auxPtsList));
 
 void freeUHashStructure(PUHashStructureT uhash, BooleanT freeHashFunctions);
 
-void addBucketEntry(PUHashStructureT uhash, IntT nBucketVectorPieces, Uns32T firstBucketVector[], Uns32T secondBucketVector[], Int32T pointIndex);
+void addBucketEntry(PUHashStructureT uhash, IntT nBucketVectorPieces,
+                    Uns32T firstBucketVector[], Uns32T secondBucketVector[],
+                    Int32T pointIndex);
 
-GeneralizedPGBucket getGBucket(PUHashStructureT uhash, IntT nBucketVectorPieces, Uns32T firstBucketVector[], Uns32T secondBucketVector[]);
+GeneralizedPGBucket getGBucket(PUHashStructureT uhash, IntT nBucketVectorPieces,
+                               Uns32T firstBucketVector[],
+                               Uns32T secondBucketVector[]);
 
-void precomputeUHFsForULSH(PUHashStructureT uhash, Uns32T *uVector, IntT length, Uns32T *result);
+void precomputeUHFsForULSH(PUHashStructureT uhash, Uns32T *uVector, IntT length,
+                           Uns32T *result);
 
 #endif

@@ -15,7 +15,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *   Authors: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
-*/
+ */
 
 #ifndef GLOBALVARS_INCLUDED
 #define GLOBALVARS_INCLUDED
@@ -28,7 +28,8 @@
 #define EXTERN_INIT(x) x
 #endif
 
-DECLARE_EXTERN MemVarT availableTotalMemory EXTERN_INIT(= DEFAULT_MEMORY_MAX_AVAILABLE);
+DECLARE_EXTERN
+    MemVarT availableTotalMemory EXTERN_INIT(= DEFAULT_MEMORY_MAX_AVAILABLE);
 
 DECLARE_EXTERN TimeVarT timeComputeULSH;
 DECLARE_EXTERN TimeVarT timeGetBucket;
@@ -54,11 +55,11 @@ DECLARE_EXTERN IntT nOfDistComps EXTERN_INIT(= 0);
 DECLARE_EXTERN MemVarT totalAllocatedMemory EXTERN_INIT(= 0);
 DECLARE_EXTERN IntT nGBuckets EXTERN_INIT(= 0);
 DECLARE_EXTERN IntT nBucketsInChains EXTERN_INIT(= 0);
-//DECLARE_EXTERN IntT nPointsInBuckets EXTERN_INIT(= 0); // total # of points found in collinding buckets (including repetitions)
+// DECLARE_EXTERN IntT nPointsInBuckets EXTERN_INIT(= 0); // total # of points
+// found in collinding buckets (including repetitions)
 DECLARE_EXTERN IntT nAllocatedGBuckets EXTERN_INIT(= 0);
 DECLARE_EXTERN IntT nAllocatedBEntries EXTERN_INIT(= 0);
 
-DECLARE_EXTERN BooleanT noExpensiveTiming  EXTERN_INIT(= FALSE);
-
+DECLARE_EXTERN BooleanT noExpensiveTiming EXTERN_INIT(= FALSE);
 
 #endif

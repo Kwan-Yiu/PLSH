@@ -15,15 +15,15 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *   Authors: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
-*/
+ */
 
 #ifndef GEOMETRY_INCLUDED
 #define GEOMETRY_INCLUDED
 
 // A simple point in d-dimensional space. A point is defined by a
-// vector of coordinates. 
+// vector of coordinates.
 typedef struct _PointT {
-  //IntT dimension;
+  // IntT dimension;
   IntT index; // the index of this point in the dataset list of points
   RealT *coordinates;
   RealT sqrLength; // the square of the length of the vector

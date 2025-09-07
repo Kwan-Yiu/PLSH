@@ -15,19 +15,19 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *   Authors: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
-*/
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "headers.h"
 
-void usage(char *programName){
+void usage(char *programName) {
   printf("Usage: %s correct_output lsh_output\n", programName);
 }
 
-IntT main(IntT nargs, char **args){
-  if (nargs < 2){
+IntT main(IntT nargs, char **args) {
+  if (nargs < 2) {
     usage(args[0]);
     exit(1);
   }
@@ -43,87 +43,92 @@ IntT main(IntT nargs, char **args){
 
   IntT nPoints;
   fscanf(fCorrect, "nPoints = %d\n", &nPoints);
-  IntT *pointsNN = (int*)calloc(nPoints, sizeof(int));
+  IntT *pointsNN = (int *)calloc(nPoints, sizeof(int));
   IntT nCorrect = 0;
   char s[1000];
   char c;
   IntT x;
   IntT nQuery = 0;
   c = ' ';
-  while(!feof(fCorrect)){
+  while (!feof(fCorrect)) {
     // find the start of the query (letter Q).
     while (!feof(fCorrect) && (c != 'Q')) {
       fscanf(fCorrect, "%c", &c);
       if (c != '0') {
-	fscanf(fCorrect, "%[^\n]", s);
-	fscanf(fCorrect, "\n");
+        fscanf(fCorrect, "%[^\n]", s);
+        fscanf(fCorrect, "\n");
       }
     };
 
-    //printf("%c\n", c);
-    
-    if (!feof(fCorrect)){
+    // printf("%c\n", c);
+
+    if (!feof(fCorrect)) {
       do {
-	fscanf(fCorrect, "%c", &c);
-	if (c != '0') {
-	  fscanf(fCorrect, "%[^\n]", s);
-	  fscanf(fCorrect, "\n");
-	}else{
-	  fscanf(fCorrect, "%d\n", &x);
-	  pointsNN[x] = 3 * nQuery + 1;
-	  nCorrect++;
-	  nTotalCorrect++;
-	}
+        fscanf(fCorrect, "%c", &c);
+        if (c != '0') {
+          fscanf(fCorrect, "%[^\n]", s);
+          fscanf(fCorrect, "\n");
+        } else {
+          fscanf(fCorrect, "%d\n", &x);
+          pointsNN[x] = 3 * nQuery + 1;
+          nCorrect++;
+          nTotalCorrect++;
+        }
       } while (!feof(fCorrect) && (c == '0'));
     }
-    
+
     IntT ok = 1;
     IntT nLSH = 0;
     char g = ' ';
-    while(!feof(fLSH) && (g != 'Q')){
+    while (!feof(fLSH) && (g != 'Q')) {
       fscanf(fLSH, "%c", &g);
       if (g != '0') {
-	fscanf(fLSH, "%[^\n]", s);
-	fscanf(fLSH, "\n");
+        fscanf(fLSH, "%[^\n]", s);
+        fscanf(fLSH, "\n");
       }
     }
 
-    if (!feof(fLSH)){
+    if (!feof(fLSH)) {
       do {
-	fscanf(fLSH, "%c", &g);
-	if (g != '0') {
-	  fscanf(fLSH, "%[^\n]", s);
-	  fscanf(fLSH, "\n");
-	}else{
-	  fscanf(fLSH, "%d\n", &x);
-	  fscanf(fLSH, "%[^\n]", s);
-	  fscanf(fLSH, "\n");
-	  if (pointsNN[x] >= 3 * nQuery + 2 ){
-	    // LSH reported a poIntT more than once.
-	    ok = 0;
-	    printf("Error: LSH reported a poIntT (%d) more than once.\n", x);
-	  }
-	  if (pointsNN[x] <= 3 * nQuery){
-	    // LSH reported a poIntT that is not reported by exact NN.
-	    ok = 0;
-	    printf("Error: LSH reported a poIntT (%d) that was not reported by NN.\n", x);
-	  }
-	  pointsNN[x] = 3 * nQuery + 2;
-	  nLSH++;
-	  nTotalLSH++;
-	}
+        fscanf(fLSH, "%c", &g);
+        if (g != '0') {
+          fscanf(fLSH, "%[^\n]", s);
+          fscanf(fLSH, "\n");
+        } else {
+          fscanf(fLSH, "%d\n", &x);
+          fscanf(fLSH, "%[^\n]", s);
+          fscanf(fLSH, "\n");
+          if (pointsNN[x] >= 3 * nQuery + 2) {
+            // LSH reported a poIntT more than once.
+            ok = 0;
+            printf("Error: LSH reported a poIntT (%d) more than once.\n", x);
+          }
+          if (pointsNN[x] <= 3 * nQuery) {
+            // LSH reported a poIntT that is not reported by exact NN.
+            ok = 0;
+            printf("Error: LSH reported a poIntT (%d) that was not reported by "
+                   "NN.\n",
+                   x);
+          }
+          pointsNN[x] = 3 * nQuery + 2;
+          nLSH++;
+          nTotalLSH++;
+        }
       } while (!feof(fLSH) && (g == '0'));
     }
 
-    printf("OK = %d. NN_LSH/NN_Correct = %d/%d=%0.3lf\n", ok, nLSH, nCorrect, (nCorrect > 0)?((double)nLSH/(double)nCorrect):1);
-    if (ok == 0){
+    printf("OK = %d. NN_LSH/NN_Correct = %d/%d=%0.3lf\n", ok, nLSH, nCorrect,
+           (nCorrect > 0) ? ((double)nLSH / (double)nCorrect) : 1);
+    if (ok == 0) {
       overallOK = 0;
     }
     nCorrect = 0;
     nQuery++;
   }
 
-  printf("\nOverall: OK = %d. NN_LSH/NN_Correct = %d/%d=%0.3lf\n", overallOK, nTotalLSH, nTotalCorrect, (nTotalCorrect > 0)?((double)nTotalLSH/(double)nTotalCorrect):1);
+  printf("\nOverall: OK = %d. NN_LSH/NN_Correct = %d/%d=%0.3lf\n", overallOK,
+         nTotalLSH, nTotalCorrect,
+         (nTotalCorrect > 0) ? ((double)nTotalLSH / (double)nTotalCorrect) : 1);
 
   fclose(fCorrect);
   fclose(fLSH);

@@ -15,30 +15,28 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *   Authors: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
-*/
+ */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include <time.h>
 #include <string.h>
-
+#include <time.h>
 
 #include "BasicDefinitions.h"
-#include "Random.h"
-#include "Geometry.h"
-#include "Util.h"
 #include "BucketHashing.h"
+#include "Geometry.h"
 #include "LocalitySensitiveHashing.h"
-#include "SelfTuning.h"
 #include "NearNeighbors.h"
-
+#include "Random.h"
+#include "SelfTuning.h"
+#include "Util.h"
 
 /** On OS X malloc definitions reside in stdlib.h */
 #ifdef DEBUG_MEM
- #ifndef __APPLE__
-    #include <malloc.h>
- #endif
+#ifndef __APPLE__
+#include <malloc.h>
+#endif
 #endif
 
 #ifdef DEBUG_TIMINGS

@@ -15,15 +15,15 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *   Authors: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
-*/
+ */
 
 #include "headers.h"
 
 // Verifies whether vector v1 and v2 are equal (component-wise). The
 // size of the vectors is given by the parameter size.
-BooleanT vectorsEqual(IntT size, IntT *v1, IntT *v2){
-  for(IntT i = 0; i < size; i++){
-    if (v1[i] != v2[i]){
+BooleanT vectorsEqual(IntT size, IntT *v1, IntT *v2) {
+  for (IntT i = 0; i < size; i++) {
+    if (v1[i] != v2[i]) {
       return FALSE;
     }
   }
@@ -32,18 +32,18 @@ BooleanT vectorsEqual(IntT size, IntT *v1, IntT *v2){
 
 // Copies the vector <from> to the vector <to>. The size of the
 // vectors is given by <size>.
-void copyVector(IntT size, IntT *from, IntT *to){
-  for(IntT i = 0; i < size; i++){
+void copyVector(IntT size, IntT *from, IntT *to) {
+  for (IntT i = 0; i < size; i++) {
     to[i] = from[i];
   }
 }
 
 // Creates a new vector of size <size> and copies the vector <from> to
 // the new vector.
-IntT *copyOfVector(IntT size, IntT *from){
+IntT *copyOfVector(IntT size, IntT *from) {
   IntT *newVector;
-  FAILIF(NULL == (newVector = (IntT*)MALLOC(size * sizeof(IntT))));
-  for(IntT i = 0; i < size; i++){
+  FAILIF(NULL == (newVector = (IntT *)MALLOC(size * sizeof(IntT))));
+  for (IntT i = 0; i < size; i++) {
     newVector[i] = from[i];
   }
   return newVector;
@@ -51,12 +51,12 @@ IntT *copyOfVector(IntT size, IntT *from){
 
 // Prints the vector <v> of size <size>. The string <s> appears
 // in front.
-void printRealVector(char *s, IntT size, RealT *v){
+void printRealVector(char *s, IntT size, RealT *v) {
   ASSERT(v != NULL);
-  
+
   printf("%s", s);
-  for(IntT i = 0; i < size; i++){
-    if (i > 0){
+  for (IntT i = 0; i < size; i++) {
+    if (i > 0) {
       printf(" ");
     }
     printf("%0.2lf", (double)v[i]);
@@ -67,12 +67,12 @@ void printRealVector(char *s, IntT size, RealT *v){
 
 // Prints the vector <v> of size <size>. The string <s> appears
 // in front.
-void printIntVector(char *s, IntT size, IntT *v){
+void printIntVector(char *s, IntT size, IntT *v) {
   ASSERT(v != NULL);
-  
+
   printf("%s", s);
-  for(IntT i = 0; i < size; i++){
-    if (i > 0){
+  for (IntT i = 0; i < size; i++) {
+    if (i > 0) {
       printf(" ");
     }
     printf("%d", v[i]);
@@ -82,9 +82,9 @@ void printIntVector(char *s, IntT size, IntT *v){
 }
 
 // Returns the amount of available memory.
-MemVarT getAvailableMemory(){
+MemVarT getAvailableMemory() {
   // TODO
-  //printf("mem=%lu\n", MEMORY_MAX_AVAILABLE - totalAllocatedMemory);
+  // printf("mem=%lu\n", MEMORY_MAX_AVAILABLE - totalAllocatedMemory);
   FAILIFWR(availableTotalMemory < totalAllocatedMemory, "Not enough memory.\n");
-  return availableTotalMemory - totalAllocatedMemory; 
+  return availableTotalMemory - totalAllocatedMemory;
 }

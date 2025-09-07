@@ -15,7 +15,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *   Authors: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
-*/
+ */
 
 #ifndef LOCALITYSENSITIVEHASHING_INCLUDED
 #define LOCALITYSENSITIVEHASHING_INCLUDED
@@ -36,10 +36,10 @@ typedef struct _LSHFunctionT {
 } LSHFunctionT, *PLSHFunctionT;
 
 typedef struct _RNNParametersT {
-  RealT parameterR; // parameter R of the algorithm.
+  RealT parameterR;         // parameter R of the algorithm.
   RealT successProbability; // the success probability 1-\delta
-  IntT dimension; // dimension of points.
-  RealT parameterR2; // = parameterR^2
+  IntT dimension;           // dimension of points.
+  RealT parameterR2;        // = parameterR^2
 
   // Whether to use <u> hash functions instead of usual <g>
   // functions. When this flag is set to TRUE, <u> functions are
@@ -48,15 +48,15 @@ typedef struct _RNNParametersT {
   BooleanT useUfunctions;
 
   IntT parameterK; // parameter K of the algorithm.
-  
+
   // parameter M (# of independent tuples of LSH functions)
   // if useUfunctions==TRUE, parameterL = parameterM * (parameterM - 1) / 2
   // if useUfunctions==FALSE, parameterL = parameterM
   IntT parameterM;
 
-  IntT parameterL; // parameter L of the algorithm.
+  IntT parameterL;  // parameter L of the algorithm.
   RealT parameterW; // parameter W of the algorithm.
-  IntT parameterT; // parameter T of the algorithm.
+  IntT parameterT;  // parameter T of the algorithm.
 
   // The type of the hash table used for storing the buckets (of the
   // same <g> function).
@@ -64,12 +64,12 @@ typedef struct _RNNParametersT {
 } RNNParametersT, *PRNNParametersT;
 
 typedef struct _RNearNeighborStructT {
-  IntT dimension; // dimension of points.
-  IntT parameterK; // parameter K of the algorithm.
-  IntT parameterL; // parameter L of the algorithm.
-  RealT parameterW; // parameter W of the algorithm.
-  IntT parameterT; // parameter T of the algorithm.
-  RealT parameterR; // parameter R of the algorithm.
+  IntT dimension;    // dimension of points.
+  IntT parameterK;   // parameter K of the algorithm.
+  IntT parameterL;   // parameter L of the algorithm.
+  RealT parameterW;  // parameter W of the algorithm.
+  IntT parameterT;   // parameter T of the algorithm.
+  RealT parameterR;  // parameter R of the algorithm.
   RealT parameterR2; // = parameterR^2
 
   // Whether to use <u> hash functions instead of usual <g>
@@ -105,7 +105,7 @@ typedef struct _RNearNeighborStructT {
   // (the distance is still computed).  If <reportingResult> == TRUE,
   // then the structure behaves normally.
   BooleanT reportingResult;
-  
+
   // This table stores the LSH functions. There are <nHFTuples> rows
   // of <hfTuplesLength> LSH functions.
   LSHFunctionT **lshFunctions;
@@ -124,10 +124,10 @@ typedef struct _RNearNeighborStructT {
   // ***
 
   // This vector is used to store the values of hash functions <u>
-  // (<hfTuplesLength>-tuple of LSH fuctions). One <g> function is a concatenation
-  // of <nHFTuples> of <u> LSH functions.
+  // (<hfTuplesLength>-tuple of LSH fuctions). One <g> function is a
+  // concatenation of <nHFTuples> of <u> LSH functions.
   Uns32T **pointULSHVectors;
-  
+
   // A vector of length <dimension> to store the reduced point (point
   // with coordinates divided by <parameterR>).
   RealT *reducedPoint;
@@ -147,18 +147,25 @@ void printRNNParameters(FILE *output, RNNParametersT parameters);
 
 RNNParametersT readRNNParameters(FILE *input);
 
-PRNearNeighborStructT initLSH(RNNParametersT algParameters, Int32T nPointsEstimate);
+PRNearNeighborStructT initLSH(RNNParametersT algParameters,
+                              Int32T nPointsEstimate);
 
-PRNearNeighborStructT initLSH_WithDataSet(RNNParametersT algParameters, Int32T nPoints, PPointT *dataSet);
+PRNearNeighborStructT initLSH_WithDataSet(RNNParametersT algParameters,
+                                          Int32T nPoints, PPointT *dataSet);
 
-//void optimizeLSH(PRNearNeighborStructT nnStruct);
+// void optimizeLSH(PRNearNeighborStructT nnStruct);
 
 void freePRNearNeighborStruct(PRNearNeighborStructT nnStruct);
 
-void setResultReporting(PRNearNeighborStructT nnStruct, BooleanT reportingStopped);
+void setResultReporting(PRNearNeighborStructT nnStruct,
+                        BooleanT reportingStopped);
 
-void addNewPointToPRNearNeighborStruct(PRNearNeighborStructT nnStruct, PPointT point);
+void addNewPointToPRNearNeighborStruct(PRNearNeighborStructT nnStruct,
+                                       PPointT point);
 
-Int32T getNearNeighborsFromPRNearNeighborStruct(PRNearNeighborStructT nnStruct, PPointT query, PPointT *(&result), IntT &resultSize);
+Int32T getNearNeighborsFromPRNearNeighborStruct(PRNearNeighborStructT nnStruct,
+                                                PPointT query,
+                                                PPointT *(&result),
+                                                IntT &resultSize);
 
 #endif

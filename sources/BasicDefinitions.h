@@ -15,7 +15,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *   Authors: Alexandr Andoni (andoni@mit.edu), Piotr Indyk (indyk@mit.edu)
-*/
+ */
 
 #ifndef BASICDEFINITIONS_INCLUDED
 #define BASICDEFINITIONS_INCLUDED
@@ -24,11 +24,11 @@
 #define N_BITS_PER_POINT_INDEX 20
 // Maximum number of points = (2^N_BITS_PER_POINT_INDEX-2)
 #define MAX_N_POINTS ((1U << N_BITS_PER_POINT_INDEX) - 1)
-// Maxumum number of points to be reported (i.e., the "k" if interested in "k-NN")
-// By xiaoq start
+// Maxumum number of points to be reported (i.e., the "k" if interested in
+// "k-NN") By xiaoq start
 #define MAX_REPORTED_POINTS 10000
-//#define MAX_REPORTED_POINTS 10
-// By xiaoq end
+// #define MAX_REPORTED_POINTS 10
+//  By xiaoq end
 
 #define IntT int
 #define LongUns64T long long unsigned
@@ -70,12 +70,12 @@
 
 // Activate this define when the L1 distance instead of L2 distance.
 //  NEVER TESTED!
-//#define USE_L1_DISTANCE
+// #define USE_L1_DISTANCE
 
 // One of these three settings should be set externally (by the compiler).
-//#define REAL_LONG_DOUBLE
-//#define REAL_DOUBLE
-//#define REAL_FLOAT
+// #define REAL_LONG_DOUBLE
+// #define REAL_DOUBLE
+// #define REAL_FLOAT
 
 #ifdef REAL_LONG_DOUBLE
 #define RealT long double
@@ -86,8 +86,10 @@
 #define FLOOR_INT32(x) ((Int32T)(floorl(x)))
 #define CEIL(x) ((int)(ceill(x)))
 #define POW(x, y) (powl(x, y))
-#define FPRINTF_REAL(file, value) {fprintf(file, "%0.3Lf", value);}
-#define FSCANF_REAL(file, value) {fscanf(file, "%Lf", value);}
+#define FPRINTF_REAL(file, value)                                              \
+  { fprintf(file, "%0.3Lf", value); }
+#define FSCANF_REAL(file, value)                                               \
+  { fscanf(file, "%Lf", value); }
 #endif
 
 #ifdef REAL_DOUBLE
@@ -99,8 +101,10 @@
 #define FLOOR_INT32(x) ((Int32T)(floor(x)))
 #define CEIL(x) ((int)(ceil(x)))
 #define POW(x, y) (pow(x, y))
-#define FPRINTF_REAL(file, value) {fprintf(file, "%0.3lf", value);}
-#define FSCANF_REAL(file, value) {fscanf(file, "%lf", value);}
+#define FPRINTF_REAL(file, value)                                              \
+  { fprintf(file, "%0.3lf", value); }
+#define FSCANF_REAL(file, value)                                               \
+  { fscanf(file, "%lf", value); }
 #define EXP exp
 #define ERF erf
 #define ERFC erfc
@@ -115,8 +119,10 @@
 #define FLOOR_INT32(x) ((Int32T)(floorf(x)))
 #define CEIL(x) ((int)(ceilf(x)))
 #define POW(x, y) (powf(x, y))
-#define FPRINTF_REAL(file, value) {fprintf(file, "%0.3f", value);}
-#define FSCANF_REAL(file, value) {fscanf(file, "%f", value);}
+#define FPRINTF_REAL(file, value)                                              \
+  { fprintf(file, "%0.3f", value); }
+#define FSCANF_REAL(file, value)                                               \
+  { fscanf(file, "%f", value); }
 #define EXP expf
 #define ERF erf
 #define ERFC erfc
@@ -126,26 +132,74 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define SQR(a) ((a) * (a))
 
-#define FAILIF(b) {if (b) {fprintf(ERROR_OUTPUT, "FAILIF triggered on line %d, file %s. Memory allocated: %lld\n", __LINE__, __FILE__, totalAllocatedMemory); exit(1);}}
-#define FAILIFWR(b, s) {if (b) {fprintf(ERROR_OUTPUT, "FAILIF triggered on line %d, file %s. Memory allocated: %lld\nReason: %s\n", __LINE__, __FILE__, totalAllocatedMemory, s); exit(1);}}
+#define FAILIF(b)                                                              \
+  {                                                                            \
+    if (b) {                                                                   \
+      fprintf(                                                                 \
+          ERROR_OUTPUT,                                                        \
+          "FAILIF triggered on line %d, file %s. Memory allocated: %lld\n",    \
+          __LINE__, __FILE__, totalAllocatedMemory);                           \
+      exit(1);                                                                 \
+    }                                                                          \
+  }
+#define FAILIFWR(b, s)                                                         \
+  {                                                                            \
+    if (b) {                                                                   \
+      fprintf(ERROR_OUTPUT,                                                    \
+              "FAILIF triggered on line %d, file %s. Memory allocated: "       \
+              "%lld\nReason: %s\n",                                            \
+              __LINE__, __FILE__, totalAllocatedMemory, s);                    \
+      exit(1);                                                                 \
+    }                                                                          \
+  }
 
-#define ASSERT(b) {if (!(b)) {fprintf(ERROR_OUTPUT, "ASSERT failed on line %d, file %s.\n", __LINE__, __FILE__); exit(1);}}
+#define ASSERT(b)                                                              \
+  {                                                                            \
+    if (!(b)) {                                                                \
+      fprintf(ERROR_OUTPUT, "ASSERT failed on line %d, file %s.\n", __LINE__,  \
+              __FILE__);                                                       \
+      exit(1);                                                                 \
+    }                                                                          \
+  }
 
 // Critical ASSERT -- it is off when not debugging
 #ifdef DEBUG
-#define CR_ASSERT(b) {if (!(b)) {fprintf(ERROR_OUTPUT, "ASSERT failed on line %d, file %s.\n", __LINE__, __FILE__); exit(1);}}
-#define CR_ASSERTWR(b, reason) {if (!(b)) {fprintf(ERROR_OUTPUT, "ASSERT failed on line %d, file %s.\nReason: %s.\n", __LINE__, __FILE__, reason); exit(1);}}
+#define CR_ASSERT(b)                                                           \
+  {                                                                            \
+    if (!(b)) {                                                                \
+      fprintf(ERROR_OUTPUT, "ASSERT failed on line %d, file %s.\n", __LINE__,  \
+              __FILE__);                                                       \
+      exit(1);                                                                 \
+    }                                                                          \
+  }
+#define CR_ASSERTWR(b, reason)                                                 \
+  {                                                                            \
+    if (!(b)) {                                                                \
+      fprintf(ERROR_OUTPUT,                                                    \
+              "ASSERT failed on line %d, file %s.\nReason: %s.\n", __LINE__,   \
+              __FILE__, reason);                                               \
+      exit(1);                                                                 \
+    }                                                                          \
+  }
 #else
 #define CR_ASSERT(b)
 #define CR_ASSERTWR(b, reason)
 #endif
 
 #ifdef DEBUG
-#define DC {fprintf(DEBUG_OUTPUT, "Debug checkpoint. Line %d, file %s.\n", __LINE__, __FILE__);}
-#define DPRINTF1(p1) {fprintf(DEBUG_OUTPUT, p1);}
-#define DPRINTF(p1, p2) {fprintf(DEBUG_OUTPUT, p1, p2);}
-#define DPRINTF3(p1, p2, p3) {fprintf(DEBUG_OUTPUT, p1, p2, p3);}
-#define DPRINTF4(p1, p2, p3, p4) {fprintf(DEBUG_OUTPUT, p1, p2, p3, p4);}
+#define DC                                                                     \
+  {                                                                            \
+    fprintf(DEBUG_OUTPUT, "Debug checkpoint. Line %d, file %s.\n", __LINE__,   \
+            __FILE__);                                                         \
+  }
+#define DPRINTF1(p1)                                                           \
+  { fprintf(DEBUG_OUTPUT, p1); }
+#define DPRINTF(p1, p2)                                                        \
+  { fprintf(DEBUG_OUTPUT, p1, p2); }
+#define DPRINTF3(p1, p2, p3)                                                   \
+  { fprintf(DEBUG_OUTPUT, p1, p2, p3); }
+#define DPRINTF4(p1, p2, p3, p4)                                               \
+  { fprintf(DEBUG_OUTPUT, p1, p2, p3, p4); }
 #else
 #define DC
 #define DPRINTF1(p1)
@@ -158,59 +212,71 @@
 #define MemVarT long long int
 
 #ifdef DEBUG_TIMINGS
-#define TIMEV_START(timeVar) { \
-  if (timingOn) { \
-    /*CR_ASSERTWR(timeVar >= 0, "timevar<0.");*/ \
-    timeval _timev; \
-    struct timezone _timez; \
-    gettimeofday(&_timev, &_timez); \
-    double timeInSecs = _timev.tv_sec + (double)_timev.tv_usec / 1000000.0; \
-    timeVar -= timeInSecs; \
-    /*int _b = (currentTime <= timeInSecs * 1.0000001);*/ \
-    /*if (!_b) {*/ \
-      /*printf("currentTime: %lf\n", currentTime);*/ \
-      /*printf("timeInSecs: %lf\n", timeInSecs);*/ \
-      /*printf("currentTime <= timeInSecs: %d\n", _b);*/ \
-    /*}*/ \
-    CR_ASSERTWR((currentTime <= timeInSecs * 1.0000001), "currentTime not increasing."); \
-    CR_ASSERTWR(((currentTime = timeInSecs) >= 0), "timeInSecs < 0"); \
-    /*CR_ASSERTWR(timeVar < 0, "timevar>=0");*/ \
-  } \
-}
+#define TIMEV_START(timeVar)                                                   \
+  {                                                                            \
+    if (timingOn) {                                                            \
+      /*CR_ASSERTWR(timeVar >= 0, "timevar<0.");*/                             \
+      timeval _timev;                                                          \
+      struct timezone _timez;                                                  \
+      gettimeofday(&_timev, &_timez);                                          \
+      double timeInSecs = _timev.tv_sec + (double)_timev.tv_usec / 1000000.0;  \
+      timeVar -= timeInSecs;                                                   \
+      /*int _b = (currentTime <= timeInSecs * 1.0000001);*/                    \
+      /*if (!_b) {*/                                                           \
+      /*printf("currentTime: %lf\n", currentTime);*/                           \
+      /*printf("timeInSecs: %lf\n", timeInSecs);*/                             \
+      /*printf("currentTime <= timeInSecs: %d\n", _b);*/                       \
+      /*}*/                                                                    \
+      CR_ASSERTWR((currentTime <= timeInSecs * 1.0000001),                     \
+                  "currentTime not increasing.");                              \
+      CR_ASSERTWR(((currentTime = timeInSecs) >= 0), "timeInSecs < 0");        \
+      /*CR_ASSERTWR(timeVar < 0, "timevar>=0");*/                              \
+    }                                                                          \
+  }
 
-#define TIMEV_END(timeVar) { \
-  if (timingOn) { \
-    /*CR_ASSERTWR(timeVar < 0, "timevar >=0");*/ \
-    timeval _timev; \
-    struct timezone _timez; \
-    gettimeofday(&_timev, &_timez); \
-    double timeInSecs = _timev.tv_sec + (double)_timev.tv_usec / 1000000.0; \
-    timeVar += timeInSecs - timevSpeed; \
-    if (timeVar < 0) { timeVar = 0;}; \
-    /*int _b = (currentTime <= timeInSecs * 1.0000001);*/ \
-    /*if (!_b) {*/ \
-      /*printf("currentTime: %lf\n", currentTime);*/ \
-      /*printf("timeInSecs: %lf\n", timeInSecs);*/ \
-      /*printf("currentTime <= timeInSecs: %d\n", _b);*/ \
-    /*}*/ \
-    CR_ASSERTWR((currentTime <= timeInSecs * 1.0000001), "currentTime not increasing."); \
-    /*CR_ASSERTWR(((currentTime = timeInSecs) >= 0), "timeInSecs < 0");*/ \
-    /*CR_ASSERTWR(timeVar >= -0.0000001, "timevar <0")*/; \
-  } \
-}
+#define TIMEV_END(timeVar)                                                     \
+  {                                                                            \
+    if (timingOn) {                                                            \
+      /*CR_ASSERTWR(timeVar < 0, "timevar >=0");*/                             \
+      timeval _timev;                                                          \
+      struct timezone _timez;                                                  \
+      gettimeofday(&_timev, &_timez);                                          \
+      double timeInSecs = _timev.tv_sec + (double)_timev.tv_usec / 1000000.0;  \
+      timeVar += timeInSecs - timevSpeed;                                      \
+      if (timeVar < 0) {                                                       \
+        timeVar = 0;                                                           \
+      };                                                                       \
+      /*int _b = (currentTime <= timeInSecs * 1.0000001);*/                    \
+      /*if (!_b) {*/                                                           \
+      /*printf("currentTime: %lf\n", currentTime);*/                           \
+      /*printf("timeInSecs: %lf\n", timeInSecs);*/                             \
+      /*printf("currentTime <= timeInSecs: %d\n", _b);*/                       \
+      /*}*/                                                                    \
+      CR_ASSERTWR((currentTime <= timeInSecs * 1.0000001),                     \
+                  "currentTime not increasing.");                              \
+      /*CR_ASSERTWR(((currentTime = timeInSecs) >= 0), "timeInSecs < 0");*/    \
+      /*CR_ASSERTWR(timeVar >= -0.0000001, "timevar <0")*/;                    \
+    }                                                                          \
+  }
 
 #else
 #define TIMEV_START(timeVar)
 #define TIMEV_END(timeVar)
 #endif
 
-#define MALLOC(amount) ((amount > 0) ? totalAllocatedMemory += amount, malloc(amount) : NULL)
+#define MALLOC(amount)                                                         \
+  ((amount > 0) ? totalAllocatedMemory += amount, malloc(amount) : NULL)
 
-#define REALLOC(oldPointer, amount) ((oldPointer != NULL) ? \
- totalAllocatedMemory += amount / 3, \
- realloc(oldPointer, amount) : \
- MALLOC(amount))
+#define REALLOC(oldPointer, amount)                                            \
+  ((oldPointer != NULL)        ? totalAllocatedMemory += amount / 3,           \
+   realloc(oldPointer, amount) : MALLOC(amount))
 
-#define FREE(pointer) {if (pointer != NULL) {free(pointer);} pointer = NULL; }
+#define FREE(pointer)                                                          \
+  {                                                                            \
+    if (pointer != NULL) {                                                     \
+      free(pointer);                                                           \
+    }                                                                          \
+    pointer = NULL;                                                            \
+  }
 
 #endif
