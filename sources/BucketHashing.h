@@ -25,35 +25,35 @@
 // stored in the entry, as well as link to the next entry in the
 // bucket.
 typedef struct _BucketEntryT {
-  // PPointT point;
-  Int32T pointIndex;
-  _BucketEntryT *nextEntry;
+    // PPointT point;
+    Int32T pointIndex;
+    _BucketEntryT *nextEntry;
 } BucketEntryT, *PBucketEntryT;
 
 // The type definition for a bucket. A bucket is a container for
 // points that all have the same value for hash function g (function g
 // is a vector of K LSH functions).
 typedef struct _GBucketT {
-  // These controlValues are used instead of the full k-vector (value
-  // of the hash function g) describing the bucket. With a high
-  // probability all buckets will have different pairs of
-  // controlValues.
-  Uns32T controlValue1;
+    // These controlValues are used instead of the full k-vector (value
+    // of the hash function g) describing the bucket. With a high
+    // probability all buckets will have different pairs of
+    // controlValues.
+    Uns32T controlValue1;
 
-  // The bucket entries (stored in a linked list).
-  BucketEntryT firstEntry;
-  _GBucketT *nextGBucketInChain;
+    // The bucket entries (stored in a linked list).
+    BucketEntryT firstEntry;
+    _GBucketT *nextGBucketInChain;
 } GBucketT, *PGBucketT;
 
 typedef struct _LinkPackedGBucketT {
-  Uns32T controlValue1;
-  Int32T indexStart;
+    Uns32T controlValue1;
+    Int32T indexStart;
 } LinkPackedGBucketT, *PLinkPackedGBucketT;
 
 typedef struct _PackedGBucketT {
-  Uns32T controlValue1;
-  Int32T indexStart;
-  Int32T nPointsInBucket;
+    Uns32T controlValue1;
+    Int32T indexStart;
+    Int32T nPointsInBucket;
 } PackedGBucketT, *PPackedGBucketT;
 
 // Number of bits reserved for storing the #points in a bucket
@@ -64,29 +64,29 @@ typedef struct _PackedGBucketT {
 
 // how many fields of N_BITS_FOR_BUCKET_LENGTH bits are needed to store a 32-bit
 // (unsigned) integer.
-#define N_FIELDS_PER_INDEX_OF_OVERFLOW                                         \
-  ((32 + N_BITS_FOR_BUCKET_LENGTH - 1) / N_BITS_FOR_BUCKET_LENGTH)
+#define N_FIELDS_PER_INDEX_OF_OVERFLOW \
+    ((32 + N_BITS_FOR_BUCKET_LENGTH - 1) / N_BITS_FOR_BUCKET_LENGTH)
 
 typedef union _HybridChainEntryT {
-  Uns32T controlValue1;
-  struct _OverloadedPoint {
-    Uns32T isLastBucket : 1;
-    Uns32T bucketLength : N_BITS_FOR_BUCKET_LENGTH;
-    Uns32T isLastPoint : 1;
-    Uns32T pointIndex : N_BITS_PER_POINT_INDEX;
-  } point;
+    Uns32T controlValue1;
+    struct _OverloadedPoint {
+        Uns32T isLastBucket : 1;
+        Uns32T bucketLength : N_BITS_FOR_BUCKET_LENGTH;
+        Uns32T isLastPoint : 1;
+        Uns32T pointIndex : N_BITS_PER_POINT_INDEX;
+    } point;
 } HybridChainEntryT, *PHybridChainEntryT;
 
 typedef union _GeneralizedPGBucket {
-  PGBucketT llGBucket;
-  PLinkPackedGBucketT linkGBucket;
-  PPackedGBucketT packedGBucket;
-  PHybridChainEntryT hybridGBucket;
+    PGBucketT llGBucket;
+    PLinkPackedGBucketT linkGBucket;
+    PPackedGBucketT packedGBucket;
+    PHybridChainEntryT hybridGBucket;
 } GeneralizedPGBucket;
 
 typedef struct _PointsListEntryT {
-  PPointT point;
-  Int32T nextPoint;
+    PPointT point;
+    Int32T nextPoint;
 } PointsListEntryT;
 
 // A big number (>> max #  of points)
@@ -127,67 +127,67 @@ typedef struct _PointsListEntryT {
 // chains and the buckets are stored using either singly linked lists
 // or static arrays (depending on the value of the field <typeHT>).
 typedef struct _UHashStructureT {
-  // The type of the hash table (can take values HT_*). when
-  // <typeHT>=HT_LINKED_LIST, chains&buckets are linked lists. when
-  // <typeHT>=HT_PACKED, chains&buckets are static arrays. when
-  // <typeHT>=HT_STATISTICS, chains are static arrays and buckets only
-  // count # of elements.  when <typeHT>=HT_HYBRID_CHAINS, a chain is
-  // a "hybrid" array that contains both the buckets and the points
-  // (the an element of the chain array is of type
-  // <HybridChainEntryT>). all chains are conglamerated in the same
-  // array <hybridChainsStorage>.
-  IntT typeHT;
+    // The type of the hash table (can take values HT_*). when
+    // <typeHT>=HT_LINKED_LIST, chains&buckets are linked lists. when
+    // <typeHT>=HT_PACKED, chains&buckets are static arrays. when
+    // <typeHT>=HT_STATISTICS, chains are static arrays and buckets only
+    // count # of elements.  when <typeHT>=HT_HYBRID_CHAINS, a chain is
+    // a "hybrid" array that contains both the buckets and the points
+    // (the an element of the chain array is of type
+    // <HybridChainEntryT>). all chains are conglamerated in the same
+    // array <hybridChainsStorage>.
+    IntT typeHT;
 
-  // The array containing the hash slots of the universal hashing.
-  union _hashTableT {
-    PGBucketT *llHashTable;
-    PackedGBucketT **packedHashTable;
-    LinkPackedGBucketT **linkHashTable;
-    PHybridChainEntryT *hybridHashTable;
-  } hashTable;
+    // The array containing the hash slots of the universal hashing.
+    union _hashTableT {
+        PGBucketT *llHashTable;
+        PackedGBucketT **packedHashTable;
+        LinkPackedGBucketT **linkHashTable;
+        PHybridChainEntryT *hybridHashTable;
+    } hashTable;
 
-  // The sizes of each of the chains of the hashtable (used only when
-  // typeHT=HT_PACKED or HT_STATISTICS.
-  IntT *chainSizes;
+    // The sizes of each of the chains of the hashtable (used only when
+    // typeHT=HT_PACKED or HT_STATISTICS.
+    IntT *chainSizes;
 
-  union _bucketPoints {
-    PPointT *pointsArray;
-    PointsListEntryT *pointsList;
-  } bucketPoints;
+    union _bucketPoints {
+        PPointT *pointsArray;
+        PointsListEntryT *pointsList;
+    } bucketPoints;
 
-  HybridChainEntryT *hybridChainsStorage;
+    HybridChainEntryT *hybridChainsStorage;
 
-  // The size of hashTable.
-  Int32T hashTableSize;
+    // The size of hashTable.
+    Int32T hashTableSize;
 
-  // Number of elements(buckets) stored in the hash table in total (that
-  // is the number of non-empty buckets).
-  Int32T nHashedBuckets;
+    // Number of elements(buckets) stored in the hash table in total (that
+    // is the number of non-empty buckets).
+    Int32T nHashedBuckets;
 
-  Int32T nHashedPoints;
+    Int32T nHashedPoints;
 
-  // Unused (but allocated) instances of the corresponding
-  // structs. May be reused if needed (instead of allocated new
-  // memory).
-  PGBucketT unusedPGBuckets;
-  PBucketEntryT unusedPBucketEntrys;
+    // Unused (but allocated) instances of the corresponding
+    // structs. May be reused if needed (instead of allocated new
+    // memory).
+    PGBucketT unusedPGBuckets;
+    PBucketEntryT unusedPBucketEntrys;
 
-  Uns32T prime;          // the prime used for the universal hash functions.
-  IntT hashedDataLength; // the number of IntT's in an element from U (U is the
-                         // set of values to hash).
+    Uns32T prime;           // the prime used for the universal hash functions.
+    IntT hashedDataLength;  // the number of IntT's in an element from U (U is
+                            // the set of values to hash).
 
-  // The hash functions used for the universal hashing.
+    // The hash functions used for the universal hashing.
 
-  // The main hash function (that defines the index
-  // of the slot in the table).
-  // The type of the hash function is: h_{a}(k) = ((a\cdot k)mod p)mod
-  // hashTableSize.
-  Uns32T *mainHashA;
+    // The main hash function (that defines the index
+    // of the slot in the table).
+    // The type of the hash function is: h_{a}(k) = ((a\cdot k)mod p)mod
+    // hashTableSize.
+    Uns32T *mainHashA;
 
-  // Control hash functions: used to compute/check the <controlValue>s
-  // of <GBucket>s.
-  // The type of the hash function is: h_{a}(k) = (a\cdot k)mod p
-  Uns32T *controlHash1;
+    // Control hash functions: used to compute/check the <controlValue>s
+    // of <GBucket>s.
+    // The type of the hash function is: h_{a}(k) = (a\cdot k)mod p
+    Uns32T *controlHash1;
 } UHashStructureT, *PUHashStructureT;
 
 #define HT_LINKED_LIST 0
@@ -201,10 +201,12 @@ typedef struct _UHashStructureT {
 #define CHAIN_INIT_SIZE 0
 #define CHAIN_RESIZE_RATIO 1.5
 
-PUHashStructureT
-newUHashStructure(IntT typeHT, Int32T hashTableSize, IntT bucketVectorLength,
-                  BooleanT useExternalUHFs, Uns32T *(&mainHashA),
-                  Uns32T *(&controlHash1), PUHashStructureT modelHT);
+PUHashStructureT newUHashStructure(IntT typeHT, Int32T hashTableSize,
+                                   IntT bucketVectorLength,
+                                   BooleanT useExternalUHFs,
+                                   Uns32T *(&mainHashA),
+                                   Uns32T *(&controlHash1),
+                                   PUHashStructureT modelHT);
 
 void clearUHashStructure(PUHashStructureT uhash);
 

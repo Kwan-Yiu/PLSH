@@ -23,16 +23,16 @@
 // A simple point in d-dimensional space. A point is defined by a
 // vector of coordinates.
 typedef struct _PointT {
-  // IntT dimension;
-  IntT index; // the index of this point in the dataset list of points
-  RealT *coordinates;
-  RealT sqrLength; // the square of the length of the vector
+    // IntT dimension;
+    IntT index;  // the index of this point in the dataset list of points
+    RealT *coordinates;
+    RealT sqrLength;  // the square of the length of the vector
 } PointT, *PPointT;
 
 // Encapsulates a PPoint and a RealT in a single struct.
 typedef struct _PPointAndRealTStructT {
-  PPointT ppoint;
-  RealT real;
+    PPointT ppoint;
+    RealT real;
 } PPointAndRealTStructT;
 
 int comparePPointAndRealTStructT(const void *a, const void *b);

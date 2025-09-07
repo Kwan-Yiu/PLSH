@@ -20,7 +20,7 @@
 #include "headers.h"
 
 int main() {
-  float f;
-  f = sqrtf(2);
-  return 0;
+    float f;
+    f = sqrtf(2);
+    return 0;
 }

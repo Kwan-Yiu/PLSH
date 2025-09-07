@@ -33,12 +33,12 @@ RealT lshPrecomp, uhashOver, distComp;
   ASSERT will fail if some data type does not have the correct size.
  */
 void checkDataTypes() {
-  ASSERT(sizeof(IntT) == sizeof(int));
-  ASSERT(sizeof(IntT) >=
-         2); // others are not quite supported (because of printf's).
-  ASSERT(sizeof(Int32T) >= 4);
-  ASSERT(sizeof(Uns32T) >= 4);
-  ASSERT(sizeof(LongUns64T) >= 8);
+    ASSERT(sizeof(IntT) == sizeof(int));
+    ASSERT(sizeof(IntT) >=
+           2);  // others are not quite supported (because of printf's).
+    ASSERT(sizeof(Int32T) >= 4);
+    ASSERT(sizeof(Uns32T) >= 4);
+    ASSERT(sizeof(LongUns64T) >= 8);
 }
 
 /*
@@ -46,16 +46,16 @@ void checkDataTypes() {
   necessary sanity checks (e.g., data types sizes).
  */
 void initializeLSHGlobal() {
-  checkDataTypes();
+    checkDataTypes();
 
-  // Initialize global variables
-  timingOn = TRUE;
+    // Initialize global variables
+    timingOn = TRUE;
 
-  // Initialize timings.
-  tuneTimeFunctions();
+    // Initialize timings.
+    tuneTimeFunctions();
 
-  // Initialize the random number generator.
-  initRandom();
+    // Initialize the random number generator.
+    initRandom();
 }
 
 // Creates a new R-near neighbor data structure,
@@ -67,7 +67,7 @@ void initializeLSHGlobal() {
 PRNearNeighborStructT initRNearNeighbor(RealT thresholdR,
                                         RealT successProbability,
                                         Int32T nPointsEstimate) {
-  ASSERT(FALSE); // Not implemented yet
+    ASSERT(FALSE);  // Not implemented yet
 }
 
 /*
@@ -90,120 +90,120 @@ PRNearNeighborStructT initSelfTunedRNearNeighborWithDataSet(
     RealT thresholdR, RealT successProbability, Int32T nPoints, IntT dimension,
     PPointT *dataSet, IntT nSampleQueries, PPointT *sampleQueries,
     MemVarT memoryUpperBound) {
-  initializeLSHGlobal();
+    initializeLSHGlobal();
 
-  PRNearNeighborStructT nnStruct = NULL;
+    PRNearNeighborStructT nnStruct = NULL;
 
-  RNNParametersT optParameters = computeOptimalParameters(
-      thresholdR, successProbability, nPoints, dimension, dataSet,
-      nSampleQueries, sampleQueries, memoryUpperBound);
+    RNNParametersT optParameters = computeOptimalParameters(
+        thresholdR, successProbability, nPoints, dimension, dataSet,
+        nSampleQueries, sampleQueries, memoryUpperBound);
 
-  if (!optParameters.useUfunctions) {
-    DPRINTF("Used L=%d\n", optParameters.parameterL);
-  } else {
-    DPRINTF("Used m = %d\n", optParameters.parameterM);
-    DPRINTF("Used L = %d\n", optParameters.parameterL);
-  }
-
-  TimeVarT timeInit = 0;
-  TIMEV_START(timeInit);
-
-  // Init the R-NN data structure.
-  if (optParameters.typeHT != HT_HYBRID_CHAINS) {
-    nnStruct = initLSH(optParameters, nPoints);
-  } else {
-    printRNNParameters(DEBUG_OUTPUT, optParameters);
-    nnStruct = initLSH_WithDataSet(optParameters, nPoints, dataSet);
-  }
-
-  TIMEV_END(timeInit);
-  printf("Time for initializing: %0.6lf\n", timeInit);
-  DPRINTF("Allocated memory: %lld\n", totalAllocatedMemory);
-
-  TimeVarT timeAdding = 0;
-  if (optParameters.typeHT != HT_HYBRID_CHAINS) {
-    // Add the points to the LSH buckets.
-    TIMEV_START(timeAdding);
-    for (IntT i = 0; i < nPoints; i++) {
-      addNewPointToPRNearNeighborStruct(nnStruct, dataSet[i]);
+    if (!optParameters.useUfunctions) {
+        DPRINTF("Used L=%d\n", optParameters.parameterL);
+    } else {
+        DPRINTF("Used m = %d\n", optParameters.parameterM);
+        DPRINTF("Used L = %d\n", optParameters.parameterL);
     }
-    TIMEV_END(timeAdding);
-    printf("Time for adding points: %0.6lf\n", timeAdding);
+
+    TimeVarT timeInit = 0;
+    TIMEV_START(timeInit);
+
+    // Init the R-NN data structure.
+    if (optParameters.typeHT != HT_HYBRID_CHAINS) {
+        nnStruct = initLSH(optParameters, nPoints);
+    } else {
+        printRNNParameters(DEBUG_OUTPUT, optParameters);
+        nnStruct = initLSH_WithDataSet(optParameters, nPoints, dataSet);
+    }
+
+    TIMEV_END(timeInit);
+    printf("Time for initializing: %0.6lf\n", timeInit);
     DPRINTF("Allocated memory: %lld\n", totalAllocatedMemory);
-  }
 
-  DPRINTF("Time for creating buckets: %0.6lf\n", timeBucketCreation);
-  DPRINTF("Time for putting buckets into UH: %0.6lf\n", timeBucketIntoUH);
-  DPRINTF("Time for computing GLSH: %0.6lf\n", timeComputeULSH);
-  DPRINTF("NGBuckets: %d\n", nGBuckets);
+    TimeVarT timeAdding = 0;
+    if (optParameters.typeHT != HT_HYBRID_CHAINS) {
+        // Add the points to the LSH buckets.
+        TIMEV_START(timeAdding);
+        for (IntT i = 0; i < nPoints; i++) {
+            addNewPointToPRNearNeighborStruct(nnStruct, dataSet[i]);
+        }
+        TIMEV_END(timeAdding);
+        printf("Time for adding points: %0.6lf\n", timeAdding);
+        DPRINTF("Allocated memory: %lld\n", totalAllocatedMemory);
+    }
 
-  return nnStruct;
+    DPRINTF("Time for creating buckets: %0.6lf\n", timeBucketCreation);
+    DPRINTF("Time for putting buckets into UH: %0.6lf\n", timeBucketIntoUH);
+    DPRINTF("Time for computing GLSH: %0.6lf\n", timeComputeULSH);
+    DPRINTF("NGBuckets: %d\n", nGBuckets);
+
+    return nnStruct;
 }
 
 Int32T getRNearNeighbors(PRNearNeighborStructT nnStruct, PPointT queryPoint,
                          PPointT *(&result), Int32T &resultSize) {
-  DPRINTF("Estimated ULSH comp: %0.6lf\n",
-          lshPrecomp * nnStruct->nHFTuples * nnStruct->hfTuplesLength);
-  DPRINTF("Estimated UH overhead: %0.6lf\n", uhashOver * nnStruct->nHFTuples);
-  //   RealT estNColls = estimateNCollisions(nnStruct->nPoints,
-  // 					nnStruct->dimension,
-  // 					nnStruct->points,
-  // 					queryPoint,
-  // 					nnStruct->parameterK,
-  // 					nnStruct->parameterL,
-  // 					nnStruct->parameterR);
-  //   DPRINTF("Estimated #collisions (query specific): %0.6lf\n",
-  //   (double)estNColls); estNColls =
-  //   (double)estimateNDistinctCollisions(nnStruct->nPoints,
-  // 						  nnStruct->dimension,
-  // 						  nnStruct->points,
-  // 						  queryPoint,
-  // 						  nnStruct->useUfunctions,
-  // 						  nnStruct->hfTuplesLength,
-  // 						  nnStruct->nHFTuples,
-  // 						  nnStruct->parameterR);
-  //   DPRINTF("Estimated #distinct collisions (query specific): %0.6lf\n",
-  //   estNColls); DPRINTF("Estimated Dist comp time (query specific):
-  //   %0.6lf\n", distComp * estNColls);
+    DPRINTF("Estimated ULSH comp: %0.6lf\n",
+            lshPrecomp * nnStruct->nHFTuples * nnStruct->hfTuplesLength);
+    DPRINTF("Estimated UH overhead: %0.6lf\n", uhashOver * nnStruct->nHFTuples);
+    //   RealT estNColls = estimateNCollisions(nnStruct->nPoints,
+    // 					nnStruct->dimension,
+    // 					nnStruct->points,
+    // 					queryPoint,
+    // 					nnStruct->parameterK,
+    // 					nnStruct->parameterL,
+    // 					nnStruct->parameterR);
+    //   DPRINTF("Estimated #collisions (query specific): %0.6lf\n",
+    //   (double)estNColls); estNColls =
+    //   (double)estimateNDistinctCollisions(nnStruct->nPoints,
+    // 						  nnStruct->dimension,
+    // 						  nnStruct->points,
+    // 						  queryPoint,
+    // 						  nnStruct->useUfunctions,
+    // 						  nnStruct->hfTuplesLength,
+    // 						  nnStruct->nHFTuples,
+    // 						  nnStruct->parameterR);
+    //   DPRINTF("Estimated #distinct collisions (query specific): %0.6lf\n",
+    //   estNColls); DPRINTF("Estimated Dist comp time (query specific):
+    //   %0.6lf\n", distComp * estNColls);
 
-  // reset all the timers
-  timeRNNQuery = 0;
-  timeComputeULSH = 0;
-  timeGetBucket = 0;
-  timeCycleBucket = 0;
-  timeDistanceComputation = 0;
-  timeResultStoring = 0;
-  timeCycleProc = 0;
-  timePrecomputeHash = 0;
-  timeGBHash = 0;
-  timeChainTraversal = 0;
-  nOfDistComps = 0;
-  timeTotalBuckets = 0;
+    // reset all the timers
+    timeRNNQuery = 0;
+    timeComputeULSH = 0;
+    timeGetBucket = 0;
+    timeCycleBucket = 0;
+    timeDistanceComputation = 0;
+    timeResultStoring = 0;
+    timeCycleProc = 0;
+    timePrecomputeHash = 0;
+    timeGBHash = 0;
+    timeChainTraversal = 0;
+    nOfDistComps = 0;
+    timeTotalBuckets = 0;
 
-  TIMEV_START(timeRNNQuery);
-  noExpensiveTiming = !DEBUG_PROFILE_TIMING;
-  Int32T nNearNeighbors = getNearNeighborsFromPRNearNeighborStruct(
-      nnStruct, queryPoint, result, resultSize);
-  TIMEV_END(timeRNNQuery);
+    TIMEV_START(timeRNNQuery);
+    noExpensiveTiming = !DEBUG_PROFILE_TIMING;
+    Int32T nNearNeighbors = getNearNeighborsFromPRNearNeighborStruct(
+        nnStruct, queryPoint, result, resultSize);
+    TIMEV_END(timeRNNQuery);
 
-  DPRINTF("Time to compute LSH: %0.6lf\n", timeComputeULSH);
-  DPRINTF("Time to get bucket: %0.6lf\n", timeGetBucket);
-  DPRINTF("Time to cycle through buckets: %0.6lf\n", timeCycleBucket);
-  DPRINTF("Time to for processing buckets (UH+examining points): %0.6lf\n",
-          timeTotalBuckets);
-  // DPRINTF("Time to copy ULSHs: %0.6lf\n", timeCopyingULSHs);
-  // DPRINTF("Time to unmark points: %0.6lf\n", timeUnmarking);
-  DPRINTF("Time for distance comps: %0.6lf\n", timeDistanceComputation);
-  DPRINTF("Time to store result: %0.6lf\n", timeResultStoring);
-  // printf("Time for cycle processing: %0.6lf\n", timeCycleProc);
-  // printf("Time for precomputing hashes: %0.6lf\n", timePrecomputeHash);
-  // printf("Time for GB hash: %0.6lf\n", timeGBHash);
-  // printf("Time for traversal of chains: %0.6lf\n", timeChainTraversal);
-  DPRINTF("Number of dist comps: %d\n", nOfDistComps);
-  DPRINTF("Number buckets in chains: %d\n", nBucketsInChains);
-  DPRINTF("Number buckets in chains / L: %0.3lf\n",
-          (double)nBucketsInChains / nnStruct->nHFTuples);
-  DPRINTF("Cumulative time for R-NN query: %0.6lf\n", timeRNNQuery);
+    DPRINTF("Time to compute LSH: %0.6lf\n", timeComputeULSH);
+    DPRINTF("Time to get bucket: %0.6lf\n", timeGetBucket);
+    DPRINTF("Time to cycle through buckets: %0.6lf\n", timeCycleBucket);
+    DPRINTF("Time to for processing buckets (UH+examining points): %0.6lf\n",
+            timeTotalBuckets);
+    // DPRINTF("Time to copy ULSHs: %0.6lf\n", timeCopyingULSHs);
+    // DPRINTF("Time to unmark points: %0.6lf\n", timeUnmarking);
+    DPRINTF("Time for distance comps: %0.6lf\n", timeDistanceComputation);
+    DPRINTF("Time to store result: %0.6lf\n", timeResultStoring);
+    // printf("Time for cycle processing: %0.6lf\n", timeCycleProc);
+    // printf("Time for precomputing hashes: %0.6lf\n", timePrecomputeHash);
+    // printf("Time for GB hash: %0.6lf\n", timeGBHash);
+    // printf("Time for traversal of chains: %0.6lf\n", timeChainTraversal);
+    DPRINTF("Number of dist comps: %d\n", nOfDistComps);
+    DPRINTF("Number buckets in chains: %d\n", nBucketsInChains);
+    DPRINTF("Number buckets in chains / L: %0.3lf\n",
+            (double)nBucketsInChains / nnStruct->nHFTuples);
+    DPRINTF("Cumulative time for R-NN query: %0.6lf\n", timeRNNQuery);
 
-  return nNearNeighbors;
+    return nNearNeighbors;
 }

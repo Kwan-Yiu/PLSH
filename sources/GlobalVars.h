@@ -29,7 +29,7 @@
 #endif
 
 DECLARE_EXTERN
-    MemVarT availableTotalMemory EXTERN_INIT(= DEFAULT_MEMORY_MAX_AVAILABLE);
+MemVarT availableTotalMemory EXTERN_INIT(= DEFAULT_MEMORY_MAX_AVAILABLE);
 
 DECLARE_EXTERN TimeVarT timeComputeULSH;
 DECLARE_EXTERN TimeVarT timeGetBucket;
