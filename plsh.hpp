@@ -1,0 +1,70 @@
+#ifndef PLSH_HPP
+#define PLSH_HPP
+
+#include <vector>
+#include <cstdint>
+#include <mutex>
+#include <shared_mutex>
+#include <thread>
+
+struct SparseVector {
+    std::vector<uint32_t> indices;
+    std::vector<float> values;
+};
+
+struct Result {
+    uint32_t id;      
+    float distance;   
+};
+
+class PLSHIndex {
+public:
+    PLSHIndex(size_t dimensions, int k, int m, unsigned int num_threads = std::thread::hardware_concurrency());
+
+    void build(const std::vector<SparseVector>& data_points);
+
+    void insert(const SparseVector& data_point);
+
+    std::vector<Result> query(const SparseVector& query_point, float radius) const;
+
+    void merge_delta_to_static();
+
+private:
+    const size_t D_; 
+    const int k_;    
+    const int m_;   
+    const int L_;    
+    const unsigned int num_threads_;
+
+    std::vector<SparseVector> data_storage_;
+    std::vector<std::vector<float>> random_hyperplanes_; 
+
+    std::vector<std::vector<uint32_t>> static_tables_offsets_;
+    std::vector<std::vector<uint32_t>> static_tables_data_;
+    
+    std::vector<std::vector<std::vector<uint32_t>>> delta_tables_;
+
+    mutable std::shared_mutex index_mutex_; 
+    std::mutex delta_insert_mutex_;         
+
+    std::vector<std::vector<uint16_t>> _compute_base_hashes(const std::vector<SparseVector>& points) const;
+    
+    void _build_static_tables_parallel(const std::vector<std::vector<uint16_t>>& base_hashes);
+
+    void _partition_level1_parallel(
+        std::vector<std::vector<uint32_t>>& partitioned_indices, 
+        const std::vector<std::vector<uint16_t>>& base_hashes);
+
+    void _partition_level2_parallel(
+        const std::vector<std::vector<uint32_t>>& level1_partitions, 
+        const std::vector<std::vector<uint16_t>>& base_hashes);
+
+    std::vector<uint32_t> _get_candidates(const SparseVector& query_point) const;
+
+    std::vector<Result> _filter_candidates(
+        const SparseVector& query_point,
+        const std::vector<uint32_t>& candidates, 
+        float radius) const;
+};
+
+#endif // PLSH_HPP
