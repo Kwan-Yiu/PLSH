@@ -25,7 +25,9 @@ public:
 
     void insert(const SparseVector& data_point);
 
-    std::vector<Result> query(const SparseVector& query_point, float radius) const;
+    std::vector<Result> query_radius(const SparseVector& query_point, float radius) const;
+
+    std::vector<Result> query_topk(const SparseVector& query_point,size_t topk) const;
 
     void merge_delta_to_static();
 
@@ -60,6 +62,8 @@ private:
         const std::vector<std::vector<uint16_t>>& base_hashes);
 
     std::vector<uint32_t> _get_candidates(const SparseVector& query_point) const;
+
+    static float l2_distance(const SparseVector& v1, const SparseVector& v2);
 
     std::vector<Result> _filter_candidates(
         const SparseVector& query_point,

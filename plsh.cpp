@@ -4,6 +4,7 @@
 #include <random>
 #include <stdexcept>
 #include <unordered_map>
+#include <algorithm>
 
 PLSHIndex::PLSHIndex(size_t dimensions, int k, int m, unsigned int num_threads)
     : D_(dimensions),
@@ -267,7 +268,7 @@ void PLSHIndex::insert(const SparseVector& data_point) {
     }
 }
 
-std::vector<Result> PLSHIndex::query(const SparseVector& query_point,
+std::vector<Result> PLSHIndex::query_radius(const SparseVector& query_point,
                                      float radius) const {
     std::shared_lock<std::shared_mutex> lock(index_mutex_);
     std::vector<uint32_t> candidates = _get_candidates(query_point);
@@ -287,6 +288,65 @@ std::vector<Result> PLSHIndex::query(const SparseVector& query_point,
         }
     }
     return _filter_candidates(query_point, unique_candidates, radius);
+}
+
+std::vector<Result> PLSHIndex::query_topk(const SparseVector& query_point,
+                                          size_t topk) const {
+    std::shared_lock<std::shared_mutex> lock(index_mutex_);
+    std::vector<uint32_t> candidates = _get_candidates(query_point);
+
+    if (candidates.empty()) {
+        return {};
+    }
+
+    // 去重
+    std::vector<uint32_t> unique_candidates;
+    unique_candidates.reserve(candidates.size());
+    std::vector<bool> seen(data_storage_.size(), false);
+    for (const uint32_t id : candidates) {
+        if (!seen[id]) {
+            unique_candidates.push_back(id);
+            seen[id] = true;
+        }
+    }
+
+    // 归一化 query
+    SparseVector normalized_query = query_point;
+    float norm_sq = 0.0f;
+    for (float val : normalized_query.values) norm_sq += val * val;
+    float norm = std::sqrt(norm_sq);
+    if (norm > 0) {
+        for (float& val : normalized_query.values) val /= norm;
+    }
+
+    // 计算所有候选的角距离
+    std::vector<Result> results;
+    results.reserve(unique_candidates.size());
+    for (const uint32_t id : unique_candidates) {
+        const SparseVector& candidate_vec = data_storage_[id];
+        float distance = l2_distance(normalized_query, candidate_vec);
+        results.push_back({id, distance});
+    }
+
+    // Top-K 选择
+    if (results.size() > topk) {
+        std::nth_element(results.begin(), results.begin() + topk, results.end(),
+                         [](const Result& a, const Result& b) {
+                             return a.distance < b.distance;
+                         });
+        results.resize(topk);
+        std::sort(results.begin(), results.end(),
+                  [](const Result& a, const Result& b) {
+                      return a.distance < b.distance;
+                  });
+    } else {
+        std::sort(results.begin(), results.end(),
+                  [](const Result& a, const Result& b) {
+                      return a.distance < b.distance;
+                  });
+    }
+
+    return results;
 }
 
 std::vector<uint32_t> PLSHIndex::_get_candidates(
@@ -361,6 +421,26 @@ static float sparse_dot_product(const SparseVector& v1,
         }
     }
     return product;
+}
+
+float PLSHIndex::l2_distance(const SparseVector& v1, const SparseVector& v2) {
+    // 假设两者都是稀疏存储
+    std::unordered_map<uint32_t, float> v2_map;
+    for (size_t i = 0; i < v2.indices.size(); ++i) {
+        v2_map[v2.indices[i]] = v2.values[i];
+    }
+
+    float dist_sq = 0.0f;
+    for (size_t i = 0; i < v1.indices.size(); ++i) {
+        uint32_t idx = v1.indices[i];
+        float diff = v1.values[i] - (v2_map.count(idx) ? v2_map[idx] : 0.0f);
+        dist_sq += diff * diff;
+        v2_map.erase(idx);
+    }
+    for (auto& kv : v2_map) {
+        dist_sq += kv.second * kv.second;
+    }
+    return std::sqrt(dist_sq);
 }
 
 std::vector<Result> PLSHIndex::_filter_candidates(

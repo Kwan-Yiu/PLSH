@@ -184,7 +184,7 @@ int main() {
         for (int i = 0; i < num_queries; ++i) {
             SparseVector query_sparse =
                 dense_to_sparse_and_normalize(all_data[i]);
-            volatile auto results = index.query(query_sparse, radius);
+            volatile auto results = index.query_radius(query_sparse, radius);
         }
         auto query_end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> query_duration = query_end - query_start;
@@ -204,7 +204,7 @@ int main() {
         SparseVector query_point_sparse =
             dense_to_sparse_and_normalize(query_point_dense);
         std::vector<Result> lsh_results =
-            index.query(query_point_sparse, radius);
+            index.query_radius(query_point_sparse, radius);
         std::vector<Result> ground_truth = find_ground_truth_dense(
             query_point_dense, all_data, radius, query_idx_for_recall);
 
