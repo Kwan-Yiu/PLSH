@@ -1,10 +1,10 @@
 #include "plsh.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <random>
 #include <stdexcept>
 #include <unordered_map>
-#include <algorithm>
 
 PLSHIndex::PLSHIndex(size_t dimensions, int k, int m, unsigned int num_threads)
     : D_(dimensions),
@@ -269,7 +269,7 @@ void PLSHIndex::insert(const SparseVector& data_point) {
 }
 
 std::vector<Result> PLSHIndex::query_radius(const SparseVector& query_point,
-                                     float radius) const {
+                                            float radius) const {
     std::shared_lock<std::shared_mutex> lock(index_mutex_);
     std::vector<uint32_t> candidates = _get_candidates(query_point);
 
