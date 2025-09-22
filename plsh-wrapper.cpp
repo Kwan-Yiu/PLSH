@@ -64,7 +64,7 @@ class PLSHWrapper {
     }
 
     // ---------------------------
-    // 查询 Top-K (实现: radius search + 排序 + 截断)
+
     // ---------------------------
     std::pair<std::vector<uint32_t>, std::vector<float>> query_topk(
         py::array_t<float, py::array::c_style | py::array::forcecast> q,
@@ -72,7 +72,6 @@ class PLSHWrapper {
         auto buf = q.unchecked<1>();
         size_t dim = buf.shape(0);
 
-        // 转 SparseVector
         SparseVector sv;
         sv.indices.reserve(dim);
         sv.values.reserve(dim);
@@ -84,17 +83,15 @@ class PLSHWrapper {
             }
         }
 
-        // 调用 PLSH 内部的 query_topk 方法，获取前 k 个最近邻
         auto results = index_.query_topk(sv, k);
 
-        // 转成 Python 可用格式
         std::vector<uint32_t> ids;
         std::vector<float> dists;
         ids.reserve(results.size());
         dists.reserve(results.size());
 
         for (const auto& result : results) {
-            ids.push_back(result.id + 1);  // 保持 +1 规则
+            ids.push_back(result.id + 1);
             dists.push_back(result.distance);
         }
 
@@ -102,7 +99,7 @@ class PLSHWrapper {
     }
 
     // ---------------------------
-    // 查询 radius (额外接口，用于调试/对齐 C++ demo)
+
     // ---------------------------
     std::pair<std::vector<uint32_t>, std::vector<float>> query_radius(
         py::array_t<float, py::array::c_style | py::array::forcecast> q,
@@ -110,7 +107,6 @@ class PLSHWrapper {
         auto buf = q.unchecked<1>();
         size_t dim = buf.shape(0);
 
-        // 转 SparseVector
         SparseVector sv;
         sv.indices.reserve(dim);
         sv.values.reserve(dim);
@@ -122,17 +118,15 @@ class PLSHWrapper {
             }
         }
 
-        // radius search
         auto results = index_.query_radius(sv, radius);
 
-        // 转成 Python 可用格式
         std::vector<uint32_t> ids;
         std::vector<float> dists;
         ids.reserve(results.size());
         dists.reserve(results.size());
 
         for (auto& r : results) {
-            ids.push_back(r.id + 1);  // 保持 +1 规则
+            ids.push_back(r.id + 1);
             dists.push_back(r.distance);
         }
         return {ids, dists};
@@ -149,7 +143,7 @@ class PLSHWrapper {
 };
 
 // ---------------------------
-// pybind11 模块定义
+
 // ---------------------------
 PYBIND11_MODULE(plsh_python, m) {
     py::class_<PLSHWrapper>(m, "Index")

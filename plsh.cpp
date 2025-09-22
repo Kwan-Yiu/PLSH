@@ -310,7 +310,6 @@ std::vector<Result> PLSHIndex::query_topk(const SparseVector& query_point,
         }
     }
 
-    // 归一化 query
     SparseVector normalized_query = query_point;
     float norm_sq = 0.0f;
     for (float val : normalized_query.values) norm_sq += val * val;
@@ -328,7 +327,6 @@ std::vector<Result> PLSHIndex::query_topk(const SparseVector& query_point,
         results.push_back({id, distance});
     }
 
-    // Top-K 选择
     if (results.size() > topk) {
         std::nth_element(results.begin(), results.begin() + topk, results.end(),
                          [](const Result& a, const Result& b) {
