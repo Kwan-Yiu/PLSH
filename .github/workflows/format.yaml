@@ -15,8 +15,12 @@ jobs:
       with:
         fetch-depth: 0  
 
-    - name: Install clang-format
-      run: sudo apt-get update && sudo apt-get install -y clang-format
+    - name: Install clang-format and sed
+      run: sudo apt-get update && sudo apt-get install -y clang-format sed
+
+    - name: Remove Chinese comments
+      run: |
+        find . -type f \( -name "*.cpp" -o -name "*.h" \) -exec sed -i 's/\/\/[^\n]*[\x4e00-\x9fa5][^\n]*//g' {} \;
 
     - name: Run clang-format
       run: find . -type f -name "*.cpp" -o -name "*.h" | xargs clang-format -i
