@@ -429,8 +429,8 @@ void PLSHIndex::_maybe_trigger_merge(size_t total_points_snapshot) {
     }
 }
 
-std::vector<Result> PLSHIndex::query(const SparseVector& query_point,
-                                     float radius) const {
+std::vector<Result> PLSHIndex::query_radius(const SparseVector& query_point,
+                                            float radius) const {
     std::shared_lock<std::shared_mutex> lock(index_mutex_);
     return _query_locked(query_point, radius);
 }
@@ -504,6 +504,63 @@ std::vector<std::vector<Result>> PLSHIndex::query_batch(
     }
 
     return batch_results;
+}
+
+std::vector<Result> PLSHIndex::query_topk(const SparseVector& query_point,
+                                          size_t topk) const {
+    std::shared_lock<std::shared_mutex> lock(index_mutex_);
+    std::vector<uint32_t> candidates = _get_candidates(query_point);
+
+    if (candidates.empty()) {
+        return {};
+    }
+
+    // 去重
+    std::vector<uint32_t> unique_candidates;
+    unique_candidates.reserve(candidates.size());
+    std::vector<bool> seen(data_storage_.size(), false);
+    for (const uint32_t id : candidates) {
+        if (!seen[id]) {
+            unique_candidates.push_back(id);
+            seen[id] = true;
+        }
+    }
+
+    SparseVector normalized_query = query_point;
+    float norm_sq = 0.0f;
+    for (float val : normalized_query.values) norm_sq += val * val;
+    float norm = std::sqrt(norm_sq);
+    if (norm > 0) {
+        for (float& val : normalized_query.values) val /= norm;
+    }
+
+    // 计算所有候选的角距离
+    std::vector<Result> results;
+    results.reserve(unique_candidates.size());
+    for (const uint32_t id : unique_candidates) {
+        const SparseVector& candidate_vec = data_storage_[id];
+        float distance = l2_distance(normalized_query, candidate_vec);
+        results.push_back({id, distance});
+    }
+
+    if (results.size() > topk) {
+        std::nth_element(results.begin(), results.begin() + topk, results.end(),
+                         [](const Result& a, const Result& b) {
+                             return a.distance < b.distance;
+                         });
+        results.resize(topk);
+        std::sort(results.begin(), results.end(),
+                  [](const Result& a, const Result& b) {
+                      return a.distance < b.distance;
+                  });
+    } else {
+        std::sort(results.begin(), results.end(),
+                  [](const Result& a, const Result& b) {
+                      return a.distance < b.distance;
+                  });
+    }
+
+    return results;
 }
 
 std::vector<uint32_t> PLSHIndex::_get_candidates(
