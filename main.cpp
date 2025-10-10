@@ -145,7 +145,8 @@ int main() {
         }
         index.insert_batch(streaming_batch);
 
-        std::cout << "  -> Performing merge after streaming batch..." << std::endl;
+        std::cout << "  -> Performing merge after streaming batch..."
+                  << std::endl;
         index.merge_delta_to_static();
 
         auto streaming_end = std::chrono::high_resolution_clock::now();
