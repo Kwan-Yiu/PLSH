@@ -92,15 +92,14 @@ int main() {
     std::cout << "!!! WARNING: Using a sparse-optimized algorithm for dense data. Expect low performance. !!!" << std::endl;
     std::cout << "!!! WARNING: Distance metric is Angular, which may not be ideal for SIFT. !!!" << std::endl;
 
-    const size_t dimensions = 32;
-    const int k = 8;
+    const size_t dimensions = 128;
+    const int k = 10;
     const int m = 60;
     const unsigned int num_threads = std::thread::hardware_concurrency();
 
     const int initial_points = 20000;
-    const int streaming_points = 80000;
-    const int total_points = initial_points + streaming_points;
-    const int merge_threshold = 20000; 
+        const int streaming_points = 80000;
+        const int total_points = initial_points + streaming_points;
 
     std::cout << "\n[CONFIG]" << std::endl;
     std::cout << "  - Vector Type: DENSE" << std::endl;
@@ -127,25 +126,17 @@ int main() {
 
         std::cout << "\n[PHASE 3: Streaming Inserts & Periodic Merging]" << std::endl;
         auto streaming_start = std::chrono::high_resolution_clock::now();
-        int insert_count_since_merge = 0;
-
+        std::vector<SparseVector> streaming_batch;
+        streaming_batch.reserve(streaming_points);
         for (int i = 0; i < streaming_points; ++i) {
-            const auto& dense_point = all_data[initial_points + i];
-            index.insert(dense_to_sparse_and_normalize(dense_point));
-            insert_count_since_merge++;
+            streaming_batch.push_back(
+                dense_to_sparse_and_normalize(all_data[initial_points + i]));
+        }
+        index.insert_batch(streaming_batch);
 
-            if (insert_count_since_merge >= merge_threshold) {
-                 std::cout << "  -> Reached insert threshold. Triggering merge..." << std::endl;
-                 index.merge_delta_to_static();
-                 insert_count_since_merge = 0;
-            }
-        }
-        
-        if (insert_count_since_merge > 0) {
-            std::cout << "  -> Performing final merge for remaining points..." << std::endl;
-            index.merge_delta_to_static();
-        }
-        
+        std::cout << "  -> Performing merge after streaming batch..." << std::endl;
+        index.merge_delta_to_static();
+
         auto streaming_end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> streaming_duration = streaming_end - streaming_start;
         double effective_insert_qps = streaming_points > 0 ? streaming_points / streaming_duration.count() : 0;
@@ -160,11 +151,14 @@ int main() {
         const int num_queries = 200;
         const float radius = 1.2f;
 
-        auto query_start = std::chrono::high_resolution_clock::now();
-        for(int i = 0; i < num_queries; ++i) {
-            SparseVector query_sparse = dense_to_sparse_and_normalize(all_data[i]);
-            volatile auto results = index.query(query_sparse, radius);
+        std::vector<SparseVector> query_batch;
+        query_batch.reserve(num_queries);
+        for (int i = 0; i < num_queries; ++i) {
+            query_batch.push_back(dense_to_sparse_and_normalize(all_data[i]));
         }
+
+        auto query_start = std::chrono::high_resolution_clock::now();
+        auto batch_results = index.query_batch(query_batch, radius);
         auto query_end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> query_duration = query_end - query_start;
         double query_qps = num_queries / query_duration.count();
@@ -206,4 +200,3 @@ int main() {
     std::cout << "\n--- Dense Vector Demo finished ---" << std::endl;
     return 0;
 }
-

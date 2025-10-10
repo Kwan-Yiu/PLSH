@@ -6,6 +6,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <thread>
+#include <atomic>
 
 struct SparseVector {
     std::vector<uint32_t> indices;
@@ -19,13 +20,20 @@ struct Result {
 
 class PLSHIndex {
 public:
-    PLSHIndex(size_t dimensions, int k, int m, unsigned int num_threads = std::thread::hardware_concurrency());
+    PLSHIndex(size_t dimensions, int k, int m,
+              unsigned int num_threads = std::thread::hardware_concurrency(),
+              double delta_merge_ratio = 0.1,
+              size_t min_delta_merge = 1024);
 
     void build(const std::vector<SparseVector>& data_points);
 
     void insert(const SparseVector& data_point);
+    void insert_batch(const std::vector<SparseVector>& data_points);
 
     std::vector<Result> query(const SparseVector& query_point, float radius) const;
+
+    std::vector<std::vector<Result>> query_batch(
+        const std::vector<SparseVector>& query_points, float radius) const;
 
     void merge_delta_to_static();
 
@@ -43,6 +51,9 @@ private:
     std::vector<std::vector<uint32_t>> static_tables_data_;
     
     std::vector<std::vector<std::vector<uint32_t>>> delta_tables_;
+    std::atomic<size_t> delta_size_;
+    double delta_merge_ratio_;
+    size_t min_delta_merge_;
 
     mutable std::shared_mutex index_mutex_; 
     std::mutex delta_insert_mutex_;         
@@ -65,6 +76,10 @@ private:
         const SparseVector& query_point,
         const std::vector<uint32_t>& candidates, 
         float radius) const;
+
+    std::vector<Result> _query_locked(const SparseVector& query_point, float radius) const;
+
+    void _maybe_trigger_merge(size_t total_points_snapshot);
 };
 
 #endif // PLSH_HPP
