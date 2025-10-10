@@ -130,6 +130,43 @@ inline float sparse_dot_hyperplane(
 }
 }  // namespace
 
+float PLSHIndex::l2_distance(const SparseVector& v1,
+                             const SparseVector& v2) {
+    size_t i = 0;
+    size_t j = 0;
+    float sum_sq = 0.0f;
+
+    while (i < v1.indices.size() && j < v2.indices.size()) {
+        uint32_t idx1 = v1.indices[i];
+        uint32_t idx2 = v2.indices[j];
+        if (idx1 == idx2) {
+            float diff = v1.values[i] - v2.values[j];
+            sum_sq += diff * diff;
+            ++i;
+            ++j;
+        } else if (idx1 < idx2) {
+            float val = v1.values[i];
+            sum_sq += val * val;
+            ++i;
+        } else {
+            float val = v2.values[j];
+            sum_sq += val * val;
+            ++j;
+        }
+    }
+
+    while (i < v1.indices.size()) {
+        float val = v1.values[i++];
+        sum_sq += val * val;
+    }
+    while (j < v2.indices.size()) {
+        float val = v2.values[j++];
+        sum_sq += val * val;
+    }
+
+    return std::sqrt(sum_sq);
+}
+
 void PLSHIndex::build(const std::vector<SparseVector>& data_points) {
     std::unique_lock<std::shared_mutex> lock(index_mutex_);
 
