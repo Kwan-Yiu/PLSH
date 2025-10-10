@@ -8,10 +8,8 @@
 #include <immintrin.h>
 #endif
 
-PLSHIndex::PLSHIndex(size_t dimensions, int k, int m,
-                     unsigned int num_threads,
-                     double delta_merge_ratio,
-                     size_t min_delta_merge)
+PLSHIndex::PLSHIndex(size_t dimensions, int k, int m, unsigned int num_threads,
+                     double delta_merge_ratio, size_t min_delta_merge)
     : D_(dimensions),
       k_(k),
       m_(m),
@@ -72,10 +70,9 @@ PLSHIndex::PLSHIndex(size_t dimensions, int k, int m,
 
 namespace {
 #if defined(__AVX2__)
-inline float sparse_dot_hyperplane_avx(
-    const SparseVector& vec,
-    const float* hyperplane,
-    size_t dimension) {
+inline float sparse_dot_hyperplane_avx(const SparseVector& vec,
+                                       const float* hyperplane,
+                                       size_t dimension) {
     const size_t n = vec.indices.size();
     const uint32_t* idx_ptr = vec.indices.data();
     const float* val_ptr = vec.values.data();
@@ -111,10 +108,8 @@ inline float sparse_dot_hyperplane_avx(
 }
 #endif
 
-inline float sparse_dot_hyperplane(
-    const SparseVector& vec,
-    const float* hyperplane,
-    size_t dimension) {
+inline float sparse_dot_hyperplane(const SparseVector& vec,
+                                   const float* hyperplane, size_t dimension) {
 #if defined(__AVX2__)
     return sparse_dot_hyperplane_avx(vec, hyperplane, dimension);
 #else
@@ -213,8 +208,8 @@ std::vector<std::vector<uint16_t>> PLSHIndex::_compute_base_hashes(
                         size_t hyperplane_idx = j * k_half + bit;
                         const float* hyperplane =
                             random_hyperplanes_[hyperplane_idx].data();
-                        float dot_product = sparse_dot_hyperplane(
-                            points[i], hyperplane, D_);
+                        float dot_product =
+                            sparse_dot_hyperplane(points[i], hyperplane, D_);
 
                         if (dot_product >= 0) {
                             current_hash |= (1 << bit);
@@ -265,7 +260,7 @@ void PLSHIndex::_partition_level1_parallel(
             std::vector<std::thread> hist_threads;
             for (unsigned int t = 0; t < num_threads_; ++t) {
                 hist_threads.emplace_back([this, t, i, chunk_size, n_points,
-                                             &local_histograms, &base_hashes] {
+                                           &local_histograms, &base_hashes] {
                     size_t start = t * chunk_size;
                     size_t end = std::min(start + chunk_size, n_points);
                     for (size_t p = start; p < end; ++p) {
@@ -288,7 +283,7 @@ void PLSHIndex::_partition_level1_parallel(
             std::vector<std::thread> scatter_threads;
             for (unsigned int t = 0; t < num_threads_; ++t) {
                 scatter_threads.emplace_back([this, t, i, chunk_size, n_points,
-                                              &local_histograms, &base_hashes, 
+                                              &local_histograms, &base_hashes,
                                               &output_indices] {
                     size_t start = t * chunk_size;
                     size_t end = std::min(start + chunk_size, n_points);
@@ -376,26 +371,26 @@ void PLSHIndex::insert_batch(const std::vector<SparseVector>& data_points) {
         size_t start = t * chunk_size;
         if (start >= batch_size) break;
         size_t end = std::min(start + chunk_size, batch_size);
-        workers.emplace_back([this, start, end, &data_points, &batched_hashes,
-                              k_half] {
-            for (size_t idx = start; idx < end; ++idx) {
-                const SparseVector& point = data_points[idx];
-                for (int i = 0; i < m_; ++i) {
-                    uint16_t current_hash = 0;
-                    for (int bit = 0; bit < k_half; ++bit) {
-                        size_t hyperplane_idx = i * k_half + bit;
-                        const float* hyperplane =
-                            random_hyperplanes_[hyperplane_idx].data();
-                        float dot_product = sparse_dot_hyperplane(
-                            point, hyperplane, D_);
-                        if (dot_product >= 0) {
-                            current_hash |= (1 << bit);
+        workers.emplace_back(
+            [this, start, end, &data_points, &batched_hashes, k_half] {
+                for (size_t idx = start; idx < end; ++idx) {
+                    const SparseVector& point = data_points[idx];
+                    for (int i = 0; i < m_; ++i) {
+                        uint16_t current_hash = 0;
+                        for (int bit = 0; bit < k_half; ++bit) {
+                            size_t hyperplane_idx = i * k_half + bit;
+                            const float* hyperplane =
+                                random_hyperplanes_[hyperplane_idx].data();
+                            float dot_product =
+                                sparse_dot_hyperplane(point, hyperplane, D_);
+                            if (dot_product >= 0) {
+                                current_hash |= (1 << bit);
+                            }
                         }
+                        batched_hashes[idx][i] = current_hash;
                     }
-                    batched_hashes[idx][i] = current_hash;
                 }
-            }
-        });
+            });
     }
     for (auto& worker : workers) {
         worker.join();
@@ -427,10 +422,11 @@ void PLSHIndex::insert_batch(const std::vector<SparseVector>& data_points) {
                 auto& table = delta_tables_[table_idx];
                 for (size_t idx = 0; idx < batch_size; ++idx) {
                     uint32_t combined_hash =
-                        (static_cast<uint32_t>(batched_hashes[idx][i]) << k_half) |
+                        (static_cast<uint32_t>(batched_hashes[idx][i])
+                         << k_half) |
                         batched_hashes[idx][j];
-                    table[combined_hash].push_back(
-                        base_id + static_cast<uint32_t>(idx));
+                    table[combined_hash].push_back(base_id +
+                                                   static_cast<uint32_t>(idx));
                 }
                 table_idx++;
             }
@@ -446,8 +442,7 @@ void PLSHIndex::_maybe_trigger_merge(size_t total_points_snapshot) {
         return;
     }
 
-    const size_t pending_delta =
-        delta_size_.load(std::memory_order_relaxed);
+    const size_t pending_delta = delta_size_.load(std::memory_order_relaxed);
     if (pending_delta == 0) {
         return;
     }
@@ -458,8 +453,7 @@ void PLSHIndex::_maybe_trigger_merge(size_t total_points_snapshot) {
 
     const size_t ratio_threshold = static_cast<size_t>(
         delta_merge_ratio_ * static_cast<double>(total_points_snapshot));
-    const size_t threshold =
-        std::max(min_delta_merge_, ratio_threshold);
+    const size_t threshold = std::max(min_delta_merge_, ratio_threshold);
 
     if (pending_delta >= threshold) {
         merge_delta_to_static();
@@ -526,8 +520,8 @@ std::vector<std::vector<Result>> PLSHIndex::query_batch(
 
     SharedLockGuard guard(index_mutex_);
 
-    const unsigned int threads_to_use =
-        std::min<unsigned int>(num_threads_, static_cast<unsigned int>(total_queries));
+    const unsigned int threads_to_use = std::min<unsigned int>(
+        num_threads_, static_cast<unsigned int>(total_queries));
     if (threads_to_use <= 1) {
         for (size_t i = 0; i < total_queries; ++i) {
             batch_results[i] = _query_locked(query_points[i], radius);
@@ -612,8 +606,8 @@ std::vector<uint32_t> PLSHIndex::_get_candidates(
             size_t hyperplane_idx = i * k_half + bit;
             const float* hyperplane =
                 random_hyperplanes_[hyperplane_idx].data();
-            float dot_product = sparse_dot_hyperplane(
-                query_point, hyperplane, D_);
+            float dot_product =
+                sparse_dot_hyperplane(query_point, hyperplane, D_);
             if (dot_product >= 0) {
                 current_hash |= (1 << bit);
             }
@@ -670,8 +664,8 @@ std::vector<Result> PLSHIndex::_filter_candidates(
         dense_query[normalized_query.indices[i]] = normalized_query.values[i];
     }
 
-    const unsigned int threads =
-        std::min<unsigned int>(num_threads_, static_cast<unsigned int>(candidates.size()));
+    const unsigned int threads = std::min<unsigned int>(
+        num_threads_, static_cast<unsigned int>(candidates.size()));
     if (threads <= 1) {
         for (const uint32_t id : candidates) {
             const SparseVector& candidate_vec = data_storage_[id];
@@ -713,8 +707,8 @@ std::vector<Result> PLSHIndex::_filter_candidates(
                                    candidate_vec.values[i];
                 }
                 if (dot_product >= min_cosine) {
-                    float distance = std::acos(
-                        std::max(-1.0f, std::min(1.0f, dot_product)));
+                    float distance =
+                        std::acos(std::max(-1.0f, std::min(1.0f, dot_product)));
                     local.push_back({id, distance});
                 }
             }
