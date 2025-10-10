@@ -125,8 +125,7 @@ inline float sparse_dot_hyperplane(const SparseVector& vec,
 }
 }  // namespace
 
-float PLSHIndex::l2_distance(const SparseVector& v1,
-                             const SparseVector& v2) {
+float PLSHIndex::l2_distance(const SparseVector& v1, const SparseVector& v2) {
     size_t i = 0;
     size_t j = 0;
     float sum_sq = 0.0f;
