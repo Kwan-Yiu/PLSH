@@ -91,7 +91,7 @@ class PLSHWrapper {
         dists.reserve(results.size());
 
         for (const auto& result : results) {
-            ids.push_back(result.id + 1);
+            ids.push_back(result.id);
             dists.push_back(result.distance);
         }
 
