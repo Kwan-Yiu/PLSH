@@ -11,9 +11,6 @@ class PLSHWrapper {
     PLSHWrapper(size_t dimensions, int k, int m, unsigned int num_threads)
         : index_(dimensions, k, m, num_threads), is_built_(false) {}
 
-    // ---------------------------
-    // 构建
-    // ---------------------------
     void build(py::array_t<float, py::array::c_style | py::array::forcecast> X,
                size_t n_points, std::vector<uint32_t> ids) {
         auto buf = X.unchecked<2>();
@@ -39,9 +36,7 @@ class PLSHWrapper {
         is_built_ = true;
     }
 
-    // ---------------------------
-    // 插入
-    // ---------------------------
+
     void insert(py::array_t<float, py::array::c_style | py::array::forcecast> X,
                 std::vector<uint32_t> ids) {
         auto buf = X.unchecked<2>();
@@ -63,9 +58,6 @@ class PLSHWrapper {
         }
     }
 
-    // ---------------------------
-
-    // ---------------------------
     std::pair<std::vector<uint32_t>, std::vector<float>> query_topk(
         py::array_t<float, py::array::c_style | py::array::forcecast> q,
         int k) {
@@ -98,9 +90,6 @@ class PLSHWrapper {
         return {ids, dists};
     }
 
-    // ---------------------------
-
-    // ---------------------------
     std::pair<std::vector<uint32_t>, std::vector<float>> query_radius(
         py::array_t<float, py::array::c_style | py::array::forcecast> q,
         float radius) {
@@ -132,9 +121,6 @@ class PLSHWrapper {
         return {ids, dists};
     }
 
-    // ---------------------------
-    // 合并
-    // ---------------------------
     void merge_delta_to_static() { index_.merge_delta_to_static(); }
 
    private:
@@ -142,9 +128,7 @@ class PLSHWrapper {
     bool is_built_;
 };
 
-// ---------------------------
 
-// ---------------------------
 PYBIND11_MODULE(plsh_python, m) {
     py::class_<PLSHWrapper>(m, "Index")
         .def(py::init<size_t, int, int, unsigned int>(), py::arg("dimensions"),
