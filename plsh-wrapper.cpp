@@ -36,7 +36,6 @@ class PLSHWrapper {
         is_built_ = true;
     }
 
-
     void insert(py::array_t<float, py::array::c_style | py::array::forcecast> X,
                 std::vector<uint32_t> ids) {
         auto buf = X.unchecked<2>();
@@ -127,7 +126,6 @@ class PLSHWrapper {
     PLSHIndex index_;
     bool is_built_;
 };
-
 
 PYBIND11_MODULE(plsh_python, m) {
     py::class_<PLSHWrapper>(m, "Index")
