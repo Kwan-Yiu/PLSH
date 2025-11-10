@@ -545,7 +545,6 @@ std::vector<Result> PLSHIndex::query_topk(const SparseVector& query_point,
         return {};
     }
 
-    // 去重
     std::vector<uint32_t> unique_candidates;
     unique_candidates.reserve(candidates.size());
     std::vector<bool> seen(data_storage_.size(), false);
@@ -564,7 +563,6 @@ std::vector<Result> PLSHIndex::query_topk(const SparseVector& query_point,
         for (float& val : normalized_query.values) val /= norm;
     }
 
-    // 计算所有候选的角距离
     std::vector<Result> results;
     results.reserve(unique_candidates.size());
     for (const uint32_t id : unique_candidates) {
